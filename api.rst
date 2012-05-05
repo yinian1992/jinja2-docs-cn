@@ -4,98 +4,80 @@ API
 .. module:: jinja2
     :synopsis: public Jinja2 API
 
-This document describes the API to Jinja2 and not the template language.  It
-will be most useful as reference to those implementing the template interface
-to the application and not those who are creating Jinja2 templates.
+本文档描述 Jinja2 的 API 而不是模板语言。这对实现模板接口，而非创建 Jinja2
+模板，是最有用的参考，
 
-Basics
+
+基础
 ------
 
-Jinja2 uses a central object called the template :class:`Environment`.
-Instances of this class are used to store the configuration, global objects
-and are used to load templates from the file system or other locations.
-Even if you are creating templates from strings by using the constructor of
-:class:`Template` class, an environment is created automatically for you,
-albeit a shared one.
+Jinja2 使用一个名为 :class:`Environment` 的中心对象。这个类的实例用于存储配
+置、全局对象，并用于从文件系统或其它位置加载模板。即使你通过:class:`Template`
+类的构造函数用字符串创建模板，也会为你自动创建一个环境，尽管是共享的。
 
-Most applications will create one :class:`Environment` object on application
-initialization and use that to load templates.  In some cases it's however
-useful to have multiple environments side by side, if different configurations
-are in use.
+大多数应用在应用初始化时创建一个 :class:`Environment` 对象，并用它加载模板。
+在某些情况下，如果使用多份配置，使用并列的多个环境无论如何是有用的。
 
-The simplest way to configure Jinja2 to load templates for your application
-looks roughly like this::
+配置 Jinja2 为你的应用加载文档的最简单方式看起来大概是这样::
 
     from jinja2 import Environment, PackageLoader
     env = Environment(loader=PackageLoader('yourapplication', 'templates'))
 
-This will create a template environment with the default settings and a
-loader that looks up the templates in the `templates` folder inside the
-`yourapplication` python package.  Different loaders are available
-and you can also write your own if you want to load templates from a
-database or other resources.
+这会创建一个默认设定下的模板环境和一个在 `yourapplication` python 包中的
+`templates` 文件夹中寻找模板的加载器。多个加载器是可用的，如果你需要从
+数据库或其它资源加载模板，你也可以自己写一个。
 
-To load a template from this environment you just have to call the
-:meth:`get_template` method which then returns the loaded :class:`Template`::
+你只需要调用 :meth:`get_template` 方法从这个环境中加载模板，并会返回已加载的
+:class:`Template`::
 
     template = env.get_template('mytemplate.html')
 
-To render it with some variables, just call the :meth:`render` method::
+用若干变量来渲染它，调用 :meth:`render` 方法::
 
     print template.render(the='variables', go='here')
 
-Using a template loader rather then passing strings to :class:`Template`
-or :meth:`Environment.from_string` has multiple advantages.  Besides being
-a lot easier to use it also enables template inheritance.
+使用一个模板加载器，而不是向 :class:`Template` 或
+:meth:`Environment.from_string` 传递字符串，有许多好处。除了使用上便利，
+也使得模板继承成为可能。
 
 
 Unicode
 -------
 
-Jinja2 is using Unicode internally which means that you have to pass Unicode
-objects to the render function or bytestrings that only consist of ASCII
-characters.  Additionally newlines are normalized to one end of line
-sequence which is per default UNIX style (``\n``).
+Jinja2 内部使用 Unicode ，这意味着你需要向渲染函数传递 Unicode 对象或只包含
+ASCII 字符的字符串。此外，换行符按照默认 UNIX 风格规定行序列结束（ ``\n`` ）。
 
-Python 2.x supports two ways of representing string objects.  One is the
-`str` type and the other is the `unicode` type, both of which extend a type
-called `basestring`.  Unfortunately the default is `str` which should not
-be used to store text based information unless only ASCII characters are
-used.  With Python 2.6 it is possible to make `unicode` the default on a per
-module level and with Python 3 it will be the default.
+Python 2.x 支持两种表示字符串对象的方法。一种是 `str` 类型，另一种是
+`unicode` 类型，它们都继承于 `basestring` 类型。不幸的是，默认的 `str` 不
+应该用于存储基于文本的信息，除非只用到 ASCII 字符。在 Python 2.6 中，可以
+在模块层指定 `unicode` 为默认值，而在 Python 3 中会是默认值。
 
-To explicitly use a Unicode string you have to prefix the string literal
-with a `u`: ``u'Hänsel und Gretel sagen Hallo'``.  That way Python will
-store the string as Unicode by decoding the string with the character
-encoding from the current Python module.  If no encoding is specified this
-defaults to 'ASCII' which means that you can't use any non ASCII identifier.
+要显式使用一个 Unicode 字符串，你需要给字符串字面量加上 `u` 前缀：
+``u'Hänsel und Gretel sagen Hallo'`` 。这样 Python 会用当前模块的字符编码来
+解码字符串，来把字符串存储为 Unicode 。如果没有指定编码，默认是 `ASCII` ，
+这意味着你不能使用任何非 ASCII 的标识符。
 
-To set a better module encoding add the following comment to the first or
-second line of the Python module using the Unicode literal::
+在使用 Unicode 字面量的 Python 模块的首行或第二行添加下面的注释，来妥善设
+置模块编码::
 
     # -*- coding: utf-8 -*-
 
-We recommend utf-8 as Encoding for Python modules and templates as it's
-possible to represent every Unicode character in utf-8 and because it's
-backwards compatible to ASCII.  For Jinja2 the default encoding of templates
-is assumed to be utf-8.
+我们推荐为 Python 模块和模板使用 utf-8 编码，因为在 utf-8 中，可以表示
+Unicode 中的每个字符，并且向后兼容 ASCII 。对于 Jinja2 ，模板的默认编码
+假定为 utf-8 。
 
-It is not possible to use Jinja2 to process non-Unicode data.  The reason
-for this is that Jinja2 uses Unicode already on the language level.  For
-example Jinja2 treats the non-breaking space as valid whitespace inside
-expressions which requires knowledge of the encoding or operating on an
-Unicode string.
+用 Jinja2 来处理非 Unicode 数据是不可能的。这是因为 Jinja2 已经在语言层
+使用了 Unicode 。例如 Jinja2 在表达式中把不间断空格视为有效的空格，这需要
+获悉编码或操作一个 Unicode 字符串。
 
-For more details about Unicode in Python have a look at the excellent
-`Unicode documentation`_.
+关于 Python 中 Unicode 的更多细节，请阅读完善的
+`Unicode documentation`_ 。
 
-Another important thing is how Jinja2 is handling string literals in
-templates.  A naive implementation would be using Unicode strings for
-all string literals but it turned out in the past that this is problematic
-as some libraries are typechecking against `str` explicitly.  For example
-`datetime.strftime` does not accept Unicode arguments.  To not break it
-completely Jinja2 is returning `str` for strings that fit into ASCII and
-for everything else `unicode`:
+另一件重要的事情是 Jinja2 如何处理模板中的字符串字面量。原生实现会对所有
+字符串字面量使用 Unicode ，但在过去这是有问题的，因为一些库显式地检查它
+们的类型是否为 `str` 。例如 `datetime.strftime` 不接受 Unicode 参数。
+为了不彻底破坏它， Jinja2 对只有 ASCII 的字符串返回 `str`，而对其它返回
+`unicode`:
 
 >>> m = Template(u"{% set a, b = 'foo', 'föö' %}").module
 >>> m.a
@@ -106,13 +88,12 @@ u'f\xf6\xf6'
 
 .. _Unicode documentation: http://docs.python.org/dev/howto/unicode.html
 
-High Level API
+高层 API
 --------------
 
-The high-level API is the API you will use in the application to load and
-render Jinja2 templates.  The :ref:`low-level-api` on the other side is only
-useful if you want to dig deeper into Jinja2 or :ref:`develop extensions
-<jinja-extensions>`.
+高层 API 即是你会在应用中用于加载并渲染模板的 API 。 :ref:`low-level-api`
+相反，只在你想深入挖掘 Jinja2 或 :ref:`开发扩展 <jinja-extensions>` 时有用。
+
 
 .. autoclass:: Environment([options])
     :members: from_string, get_template, select_template,
@@ -121,94 +102,78 @@ useful if you want to dig deeper into Jinja2 or :ref:`develop extensions
 
     .. attribute:: shared
 
-        If a template was created by using the :class:`Template` constructor
-        an environment is created automatically.  These environments are
-        created as shared environments which means that multiple templates
-        may have the same anonymous environment.  For all shared environments
-        this attribute is `True`, else `False`.
+        如果模板通过  :class:`Template` 构造函数创建，会自动创建一个环境。这
+        些环境被创建为共享的环境，这意味着多个模板拥有相同的匿名环境。对所有
+        模板共享环境，这个属性为 `True` ，反之为 `False` 。
 
     .. attribute:: sandboxed
 
-        If the environment is sandboxed this attribute is `True`.  For the
-        sandbox mode have a look at the documentation for the
-        :class:`~jinja2.sandbox.SandboxedEnvironment`.
+        如果环境在沙箱中，这个属性为 `True` 。沙箱模式见文档中的
+        :class:`~jinja2.sandbox.SandboxedEnvironment` 。
 
     .. attribute:: filters
 
-        A dict of filters for this environment.  As long as no template was
-        loaded it's safe to add new filters or remove old.  For custom filters
-        see :ref:`writing-filters`.  For valid filter names have a look at
-        :ref:`identifier-naming`.
+        该环境的过滤器字典。只要没有加载过模板，添加新过滤器或删除旧的都是
+        安全的。自定义过滤器见 :ref:`writing-filters` 。有效的过滤器名称见
+        :ref:`identifier-naming` 。
 
     .. attribute:: tests
 
-        A dict of test functions for this environment.  As long as no
-        template was loaded it's safe to modify this dict.  For custom tests
-        see :ref:`writing-tests`.  For valid test names have a look at
-        :ref:`identifier-naming`.
+        该环境的测试函数字典。只要没有加载过模板，修改这个字典都是安全的。
+        自定义测试见 see :ref:`writing-tests` 。有效的测试名见
+        :ref:`identifier-naming` 。
 
     .. attribute:: globals
 
-        A dict of global variables.  These variables are always available
-        in a template.  As long as no template was loaded it's safe
-        to modify this dict.  For more details see :ref:`global-namespace`.
-        For valid object names have a look at :ref:`identifier-naming`.
+        一个全局变量字典。这些变量在模板中总是可用。只要没有加载过模板，修
+        改这个字典都是安全的。更多细节见 :ref:`global-namespace` 。有效的
+        对象名见 :ref:`identifier-naming` 。
 
     .. automethod:: overlay([options])
 
     .. method:: undefined([hint, obj, name, exc])
 
-        Creates a new :class:`Undefined` object for `name`.  This is useful
-        for filters or functions that may return undefined objects for
-        some operations.  All parameters except of `hint` should be provided
-        as keyword parameters for better readability.  The `hint` is used as
-        error message for the exception if provided, otherwise the error
-        message will be generated from `obj` and `name` automatically.  The exception
-        provided as `exc` is raised if something with the generated undefined
-        object is done that the undefined object does not allow.  The default
-        exception is :exc:`UndefinedError`.  If a `hint` is provided the
-        `name` may be ommited.
+        为 `name` 创建一个新 :class:`Undefined` 对象。这对可能为某些操作返回
+        未定义对象过滤器和函数有用。除了 `hint` ，为了良好的可读性，所有参数
+        应该作为关键字参数传入。如果提供了 `hint` ，它被用作异常的错误消息，
+        否则错误信息会由 `obj` 和 `name` 自动生成。 `exc` 为生成未定义对象而
+        不允许未定义的对象时抛出的异常。默认的异常是 :exc:`UndefinedError` 。
+        如果提供了 `hint` ， `name` 会被发送。
 
-        The most common way to create an undefined object is by providing
-        a name only::
+        创建一个未定义对象的最常用方法是只提供名称::
 
             return environment.undefined(name='some_name')
 
-        This means that the name `some_name` is not defined.  If the name
-        was from an attribute of an object it makes sense to tell the
-        undefined object the holder object to improve the error message::
+        这意味着名称 `some_name` 未被定义。如果名称来自一个对象的属性，把
+        持有它的对象告知未定义对象对丰富错误消息很有意义::
 
             if not hasattr(obj, 'attr'):
                 return environment.undefined(obj=obj, name='attr')
 
-        For a more complex example you can provide a hint.  For example
-        the :func:`first` filter creates an undefined object that way::
+        更复杂的例子中，你可以提供一个 hint 。例如 :func:`first` 过滤器
+        用这种方法创建一个未定义对象::
 
             return environment.undefined('no first item, sequence was empty')            
 
-        If it the `name` or `obj` is known (for example because an attribute
-        was accessed) it shold be passed to the undefined object, even if
-        a custom `hint` is provided.  This gives undefined objects the
-        possibility to enhance the error message.
+        如果 `name` 或 `obj` 是已知的（比如访问了了一个属性），它应该传递给
+        未定义对象，即使提供了自定义的 `hint` 。这让未定义对象有可能增强错误
+        消息。
 
 .. autoclass:: Template
     :members: module, make_module
 
     .. attribute:: globals
 
-        The dict with the globals of that template.  It's unsafe to modify
-        this dict as it may be shared with other templates or the environment
-        that loaded the template.
+        该模板的全局变量字典。修改这个字典是不安全的，因为它可能与其它模板或
+        加载这个模板的环境共享。
 
     .. attribute:: name
 
-        The loading name of the template.  If the template was loaded from a
-        string this is `None`.
+        模板的加载名。如果模板从字符串加载，这个值为 `None` 。
 
     .. attribute:: filename
 
-        The filename of the template on the file system if it was loaded from
-        there.  Otherwise this is `None`.
+        模板在文件系统上的文件名，如果没有从文件系统加载，这个值为 `None` 。
 
     .. automethod:: render([context])
 
@@ -221,19 +186,17 @@ useful if you want to dig deeper into Jinja2 or :ref:`develop extensions
     :members: disable_buffering, enable_buffering, dump
 
 
-Autoescaping
+自动转义
 ------------
 
 .. versionadded:: 2.4
 
-As of Jinja 2.4 the preferred way to do autoescaping is to enable the
-:ref:`autoescape-extension` and to configure a sensible default for
-autoescaping.  This makes it possible to enable and disable autoescaping
-on a per-template basis (HTML versus text for instance).
+从 Jinja 2.4 开始，自动转义的首选途径就是启用 :ref:`autoescape-extension`
+并为自动转义配置一个合适的默认值。这使得在单个模板基础上开关自动转义成为
+可能（比如 HTML 对 文本）
 
-Here a recommended setup that enables autoescaping for templates ending
-in ``'.html'``, ``'.htm'`` and ``'.xml'`` and disabling it by default
-for all other extensions::
+这里推荐为以 ``.html`` 、 ``.htm`` 、 ``.xml`` 以及 ``.xhtml`` 的模板开启
+自动转义 ，并对所有其它扩展名禁用::
 
     def guess_autoescape(template_name):
         if template_name is None or '.' not in template_name:
@@ -245,86 +208,75 @@ for all other extensions::
                       loader=PackageLoader('mypackage'),
                       extensions=['jinja2.ext.autoescape'])
 
-When implementing a guessing autoescape function, make sure you also
-accept `None` as valid template name.  This will be passed when generating
-templates from strings.
+假设实现一个自动转义函数，确保你也视 `None` 为有效模板名接受。这会在从字符
+串生成模板时传递。
 
-Inside the templates the behaviour can be temporarily changed by using
-the `autoescape` block (see :ref:`autoescape-overrides`).
+可以用 `autoescape` 块在模板内临时地更改这种行为。（见
+:ref:`autoescape-overrides` ）。
 
 
 .. _identifier-naming:
 
-Notes on Identifiers
+标识符的说明
 --------------------
 
-Jinja2 uses the regular Python 2.x naming rules.  Valid identifiers have to
-match ``[a-zA-Z_][a-zA-Z0-9_]*``.  As a matter of fact non ASCII characters
-are currently not allowed.  This limitation will probably go away as soon as
-unicode identifiers are fully specified for Python 3.
+Jinja2 使用正规的 Python 2.x 命名规则。有效的标识符必须匹配
+``[a-zA-Z_][a-zA-Z0-9_]*`` 。事实上，当前不允许非 ASCII 字符。这个限制可能
+会在 Python 3 充分规定 unicode 标识符后消失。
 
-Filters and tests are looked up in separate namespaces and have slightly
-modified identifier syntax.  Filters and tests may contain dots to group
-filters and tests by topic.  For example it's perfectly valid to add a
-function into the filter dict and call it `to.unicode`.  The regular
-expression for filter and test identifiers is
-``[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*```.
+过滤器和测试会在独立的命名空间中查找，与标识符语法有细微区别。过滤器和测
+试可以包含点，用于按主题给过滤器和测试分组。例如，把一个名为 `to.unicode`
+的函数添加到过滤器字典是完全有效的。过滤器和测试标识符的正则表达式是
+``[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*`` 。
 
 
-Undefined Types
+未定义类型
 ---------------
 
-These classes can be used as undefined types.  The :class:`Environment`
-constructor takes an `undefined` parameter that can be one of those classes
-or a custom subclass of :class:`Undefined`.  Whenever the template engine is
-unable to look up a name or access an attribute one of those objects is
-created and returned.  Some operations on undefined values are then allowed,
-others fail.
+这些类可以用作未定义类型。 :class:`Environment` 的构造函数接受一个可以是
+那些类或一个 :class:`Undefined` 的自定义子类的 `undefined` 参数。无论何时，
+这些对象创建或返回时，模板引擎都不能查出其名称或访问其属性。未定义值上的
+某些操作之后是允许的，而其它的会失败。
 
-The closest to regular Python behavior is the `StrictUndefined` which
-disallows all operations beside testing if it's an undefined object.
+最接近常规 Python 行为的是 `StrictUndefined` ，如果它是一个未定义对象，
+它不允许除了测试之外的一切操作。
 
 .. autoclass:: jinja2.Undefined()
 
     .. attribute:: _undefined_hint
 
-        Either `None` or an unicode string with the error message for
-        the undefined object.
+        `None` 或给未定义对象的错误消息 unicode 字符串。
 
     .. attribute:: _undefined_obj
 
-        Either `None` or the owner object that caused the undefined object
-        to be created (for example because an attribute does not exist).
+        `None` 或引起未定义对象创建的对象（例如一个属性不存在）。
 
     .. attribute:: _undefined_name
 
-        The name for the undefined variable / attribute or just `None`
-        if no such information exists.
+        未定义变量/属性的名称，如果没有此类信息，留为 `None` 。
 
     .. attribute:: _undefined_exception
 
-        The exception that the undefined object wants to raise.  This
-        is usually one of :exc:`UndefinedError` or :exc:`SecurityError`.
+        未定义对象想要抛出的异常。这通常是 :exc:`UndefinedError` 或
+        :exc:`SecurityError` 之一。
 
     .. method:: _fail_with_undefined_error(\*args, \**kwargs)
 
-        When called with any arguments this method raises
-        :attr:`_undefined_exception` with an error message generated
-        from the undefined hints stored on the undefined object.
+        参数任意，调用这个方法时会抛出带有由未定义对象上存储的未定义
+        hint 生成的错误信息的 :attr:`_undefined_exception` 异常。
 
 .. autoclass:: jinja2.DebugUndefined()
 
 .. autoclass:: jinja2.StrictUndefined()
 
-Undefined objects are created by calling :attr:`undefined`.
+未定义对象由调用 :attr:`undefined` 创建。
 
-.. admonition:: Implementation
+.. admonition:: 实现
 
-    :class:`Undefined` objects are implemented by overriding the special
-    `__underscore__` methods.  For example the default :class:`Undefined`
-    class implements `__unicode__` in a way that it returns an empty
-    string, however `__int__` and others still fail with an exception.  To
-    allow conversion to int by returning ``0`` you can implement your own::
+    :class:`Undefined` 对象通过重载特殊的 `__underscore__` 方法实现。例如
+    默认的 :class:`Undefined` 类实现 `__unicode__` 为返回一个空字符串，但
+    `__int__` 和其它会始终抛出异常。你可以自己通过返回 ``0`` 实现转换为
+    int::
 
         class NullUndefined(Undefined):
             def __int__(self):
@@ -332,18 +284,16 @@ Undefined objects are created by calling :attr:`undefined`.
             def __float__(self):
                 return 0.0
 
-    To disallow a method, just override it and raise
-    :attr:`~Undefined._undefined_exception`.  Because this is a very common
-    idom in undefined objects there is the helper method
-    :meth:`~Undefined._fail_with_undefined_error` that does the error raising
-    automatically.  Here a class that works like the regular :class:`Undefined`
-    but chokes on iteration::
+    要禁用一个方法，重载它并抛出 :attr:`~Undefined._undefined_exception` 。因
+    为这在未定义对象中非常常用，未定义对象有辅助方法
+    :meth:`~Undefined._fail_with_undefined_error` 自动抛出错误。这里的一个类
+    工作类似正规的 :class:`Undefined` ，但它在迭代时阻塞:
 
         class NonIterableUndefined(Undefined):
             __iter__ = Undefined._fail_with_undefined_error
 
 
-The Context
+上下文
 -----------
 
 .. autoclass:: jinja2.runtime.Context()
@@ -351,76 +301,67 @@ The Context
 
     .. attribute:: parent
 
-        A dict of read only, global variables the template looks up.  These
-        can either come from another :class:`Context`, from the
-        :attr:`Environment.globals` or :attr:`Template.globals` or points
-        to a dict created by combining the globals with the variables
-        passed to the render function.  It must not be altered.
+        一个模板查找的只读全局变量的词典。这些变量可能来自另一个
+        :class:`Context` ，或是 :attr:`Environment.globals` ，或是
+        :attr:`Template.globals` ，或指向一个由全局变量和传递到渲染函数的变
+        量联立的字典。它一定不能被修改。
 
     .. attribute:: vars
 
-        The template local variables.  This list contains environment and
-        context functions from the :attr:`parent` scope as well as local
-        modifications and exported variables from the template.  The template
-        will modify this dict during template evaluation but filters and
-        context functions are not allowed to modify it.
+        模板局域变量。这个列表包含环境和来自 :attr:`parent` 范围的上下文函数
+        以及局域修改和从模板中导出的变量。模板会在模板求值时修改这个字典，
+        但过滤器和上下文函数不允许修改它。
 
     .. attribute:: environment
 
-        The environment that loaded the template.
+        加载该模板的环境
 
     .. attribute:: exported_vars
 
-        This set contains all the names the template exports.  The values for
-        the names are in the :attr:`vars` dict.  In order to get a copy of the
-        exported variables as dict, :meth:`get_exported` can be used.
+        这设定了所有模板导出量的名称。名称对应的值在 :attr:`vars` 字典中。
+        可以用 :meth:`get_exported` 获取一份导出变量的拷贝字典。
 
     .. attribute:: name
 
-        The load name of the template owning this context.
+        拥有此上下文的模板的载入名。
 
     .. attribute:: blocks
 
-        A dict with the current mapping of blocks in the template.  The keys
-        in this dict are the names of the blocks, and the values a list of
-        blocks registered.  The last item in each list is the current active
-        block (latest in the inheritance chain).
+        模板中块当前映射的字典。字典中的键是块名称，值是注册的块的列表。每个
+        列表的最后一项是当前活动的块（继承链中最新的）。
 
     .. attribute:: eval_ctx
 
-        The current :ref:`eval-context`.
+        当前的 :ref:`eval-context` 。
 
     .. automethod:: jinja2.runtime.Context.call(callable, \*args, \**kwargs)
 
 
-.. admonition:: Implementation
+.. admonition:: 实现
 
-    Context is immutable for the same reason Python's frame locals are
-    immutable inside functions.  Both Jinja2 and Python are not using the
-    context / frame locals as data storage for variables but only as primary
-    data source.
+    Python frame 中的局域变量在函数中是不可变的，出于同样的原因，上下文是不可
+    变的。 Jinja2 和 Python 都不把上下文/ frame 作为变量的数据存储，而只作为
+    主要的数据源。
 
-    When a template accesses a variable the template does not define, Jinja2
-    looks up the variable in the context, after that the variable is treated
-    as if it was defined in the template.
+    当模板访问一个模板中没有定义的变量时， Jinja2 在上下文中查找变量，此后，
+    这个变量被视为其是在模板中定义得一样。
 
 
 .. _loaders:
 
-Loaders
+加载器
 -------
 
-Loaders are responsible for loading templates from a resource such as the
-file system.  The environment will keep the compiled modules in memory like
-Python's `sys.modules`.  Unlike `sys.modules` however this cache is limited in
-size by default and templates are automatically reloaded.
-All loaders are subclasses of :class:`BaseLoader`.  If you want to create your
-own loader, subclass :class:`BaseLoader` and override `get_source`.
+加载器负责从诸如文件系统的资源加载模板。环境会把编译的模块像
+Python 的 `sys.modules` 一样保持在内存中。与 `sys.models` 不同，无论如何这个
+缓存默认有大小限制，且模板会自动重新加载。
+所有的加载器都是 :class:`BaseLoader` 的子类。如果你想要创建自己的加载器，继
+承 :class:`BaseLoader` 并重载 `get_source` 。
 
 .. autoclass:: jinja2.BaseLoader
     :members: get_source, load
 
-Here a list of the builtin loaders Jinja2 provides:
+这里有一个 Jinja2 提供的内置加载器的列表:
 
 .. autoclass:: jinja2.FileSystemLoader
 
@@ -439,18 +380,17 @@ Here a list of the builtin loaders Jinja2 provides:
 
 .. _bytecode-cache:
 
-Bytecode Cache
+字节码缓存
 --------------
 
-Jinja 2.1 and higher support external bytecode caching.  Bytecode caches make
-it possible to store the generated bytecode on the file system or a different
-location to avoid parsing the templates on first use.
+Jinja 2.1 和更高的版本支持外部字节码缓存。字节码缓存使得在首次使用时把生成的字节码
+存储到文件系统或其它位置来避免处理模板。
 
-This is especially useful if you have a web application that is initialized on
-the first request and Jinja compiles many templates at once which slows down
-the application.
+这在当你有一个在首个应用初始化的 web 应用， Jinja 一次性编译大量模板拖慢应用时尤其
+有用。
 
-To use a bytecode cache, instanciate it and pass it to the :class:`Environment`.
+
+要使用字节码缓存，把它实例化并传给 :class:`Environment` 。
 
 .. autoclass:: jinja2.BytecodeCache
     :members: load_bytecode, dump_bytecode, clear
@@ -461,29 +401,28 @@ To use a bytecode cache, instanciate it and pass it to the :class:`Environment`.
 
     .. attribute:: environment
 
-        The :class:`Environment` that created the bucket.
+        创建 bucket 的 :class:`Environment`
 
     .. attribute:: key
 
-        The unique cache key for this bucket
+        该 bucket 的唯一键
 
     .. attribute:: code
 
-        The bytecode if it's loaded, otherwise `None`.
+        如果已加载，则为字节码，否则为 `None` 。
 
 
-Builtin bytecode caches:
+内建的字节码缓存:
 
 .. autoclass:: jinja2.FileSystemBytecodeCache
 
 .. autoclass:: jinja2.MemcachedBytecodeCache
 
 
-Utilities
+实用工具
 ---------
 
-These helper functions and classes are useful if you add custom filters or
-functions to a Jinja2 environment.
+这些辅助函数和类在你向 Jinja2 环境中添加自定义过滤器或函数时很有用。
 
 .. autofunction:: jinja2.environmentfilter
 
@@ -499,12 +438,11 @@ functions to a Jinja2 environment.
 
 .. function:: escape(s)
 
-    Convert the characters ``&``, ``<``, ``>``, ``'``, and ``"`` in string `s`
-    to HTML-safe sequences.  Use this if you need to display text that might
-    contain such characters in HTML.  This function will not escaped objects
-    that do have an HTML representation such as already escaped data.
+    把字符串 `s` 中 ``&`` 、 ``<`` 、 ``>`` 、 ``'`` 和 ``"`` 转换为 HTML 安
+    全的序列。如果你需要在 HTML 中显示可能包含这些字符的文本，可以使用它。这
+    个函数不会转义对象。这个函数不会转义含有 HTML 表达式比如已转义数据的对象。
 
-    The return value is a :class:`Markup` string.
+    返回值是一个 :class:`Markup` 字符串。
 
 .. autofunction:: jinja2.clear_caches
 
@@ -515,12 +453,11 @@ functions to a Jinja2 environment.
 
 .. admonition:: Note
 
-    The Jinja2 :class:`Markup` class is compatible with at least Pylons and
-    Genshi.  It's expected that more template engines and framework will pick
-    up the `__html__` concept soon.
+    Jinja2 的 :class:`Markup` 类至少与 Pylons 和 Genshi 兼容。预计不久更多模板
+    引擎和框架会采用 `__html__` 的概念。
 
 
-Exceptions
+异常
 ----------
 
 .. autoexception:: jinja2.TemplateError
@@ -535,65 +472,59 @@ Exceptions
 
     .. attribute:: message
 
-        The error message as utf-8 bytestring.
+        错误信息的 utf-8 字节串。
 
     .. attribute:: lineno
 
-        The line number where the error occurred
+        发生错误的行号。
 
     .. attribute:: name
 
-        The load name for the template as unicode string.
+        模板的加载名的 unicode 字符串。
 
     .. attribute:: filename
 
-        The filename that loaded the template as bytestring in the encoding
-        of the file system (most likely utf-8 or mbcs on Windows systems).
+        加载的模板的文件名字节串，以文件系统的编码（多是 utf-8 ， Windows
+        是 mbcs ）。
 
-    The reason why the filename and error message are bytestrings and not
-    unicode strings is that Python 2.x is not using unicode for exceptions
-    and tracebacks as well as the compiler.  This will change with Python 3.
-
+    文件名和错误消息是字节串而不是 unicode 字符串的原因是，在 Python 2.x
+    中，不对异常和回溯使用 unicode ，编译器同样。这会在 Python 3 改变。
+    
 .. autoexception:: jinja2.TemplateAssertionError
 
 
 .. _writing-filters:
 
-Custom Filters
+自定义过滤器
 --------------
 
-Custom filters are just regular Python functions that take the left side of
-the filter as first argument and the the arguments passed to the filter as
-extra arguments or keyword arguments.
+自定义过滤器只是常规的 Python 函数，过滤器左边作为第一个参数，其余的参数作
+为额外的参数或关键字参数传递到过滤器。
 
-For example in the filter ``{{ 42|myfilter(23) }}`` the function would be
-called with ``myfilter(42, 23)``.  Here for example a simple filter that can
-be applied to datetime objects to format them::
+例如在过滤器 ``{{ 42|myfilter(23) }}`` 中，函数被以 ``myfilter(42, 23)`` 调
+用。这里给出一个简单的过滤器示例，可以应用到 datetime 对象来格式化它们::
 
     def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
         return value.strftime(format)
 
-You can register it on the template environment by updating the
-:attr:`~Environment.filters` dict on the environment::
+你可以更新环境上的 :attr:`~Environment.filters` 字典来把它注册到模板环境上::
 
     environment.filters['datetimeformat'] = datetimeformat
 
-Inside the template it can then be used as follows:
+在模板中使用如下:
 
 .. sourcecode:: jinja
 
     written on: {{ article.pub_date|datetimeformat }}
     publication date: {{ article.pub_date|datetimeformat('%d-%m-%Y') }}
 
-Filters can also be passed the current template context or environment.  This
-is useful if a filter wants to return an undefined value or check the current
-:attr:`~Environment.autoescape` setting.  For this purpose three decorators
-exist: :func:`environmentfilter`, :func:`contextfilter` and
-:func:`evalcontextfilter`.
+也可以传给过滤器当前模板上下文或环境。当过滤器要返回一个未定义值或检查当前的
+:attr:`~Environment.autoescape` 设置时很有用。为此，有三个装饰器：
+:func:`environmentfilter` 、 :func:`contextfilter` 和
+:func:`evalcontextfilter` 。
 
-Here a small example filter that breaks a text into HTML line breaks and
-paragraphs and marks the return value as safe HTML string if autoescaping is
-enabled::
+这里是一个小例子，过滤器把一个文本在 HTML 中换行或分段，并标记返回值为安全
+的 HTML 字符串，因为自动转义是启用的::
 
     import re
     from jinja2 import evalcontextfilter, Markup, escape
@@ -608,28 +539,24 @@ enabled::
             result = Markup(result)
         return result
 
-Context filters work the same just that the first argument is the current
-active :class:`Context` rather then the environment.
+上下文过滤器工作方式相同，只是第一个参数是当前活动的 :class:`Context` 而
+不是环境。
 
 
 .. _eval-context:
 
-Evaluation Context
+求值上下文
 ------------------
 
-The evaluation context (short eval context or eval ctx) is a new object
-introducted in Jinja 2.4 that makes it possible to activate and deactivate
-compiled features at runtime.
+求值上下文（缩写为 eval context 或 eval ctx ）是 Jinja 2.4 中引入的新对象，
+并可以在运行时激活/停用已编译的特性。
 
-Currently it is only used to enable and disable the automatic escaping but
-can be used for extensions as well.
+当前它只用于启用和禁用自动转义，但也可以用于扩展。
 
-In previous Jinja versions filters and functions were marked as
-environment callables in order to check for the autoescape status from the
-environment.  In new versions it's encouraged to check the setting from the
-evaluation context instead.
+在之前的 Jinja 版本中，过滤器和函数被标记为环境可调用的来从环境中检查自动
+转义的状态。在新版本中鼓励通过求值上下文来检查这个设定。
 
-Previous versions::
+之前的版本::
 
     @environmentfilter
     def filter(env, value):
@@ -638,10 +565,8 @@ Previous versions::
             result = Markup(result)
         return result
 
-In new versions you can either use a :func:`contextfilter` and access the
-evaluation context from the actual context, or use a
-:func:`evalcontextfilter` which directly passes the evaluation context to
-the function::
+在新版本中，你可以用 :func:`contextfilter` 从实际的上下文中访问求值上下
+文，或用 :func:`evalcontextfilter` 直接把求值上下文传递给函数::
 
     @contextfilter
     def filter(context, value):
@@ -657,21 +582,21 @@ the function::
             result = Markup(result)
         return result
 
-The evaluation context must not be modified at runtime.  Modifications
-must only happen with a :class:`nodes.EvalContextModifier` and
-:class:`nodes.ScopedEvalContextModifier` from an extension, not on the
-eval context object itself.
+求值上下文一定不能在运行时修改。修改只能在扩展中的
+用 :class:`nodes.EvalContextModifier` 和
+:class:`nodes.ScopedEvalContextModifier` 发生，而不是通过求值上下文对
+象本身。
 
 .. autoclass:: jinja2.nodes.EvalContext
 
    .. attribute:: autoescape
 
-      `True` or `False` depending on if autoescaping is active or not.
+      `True` 或 `False` 取决于自动转义是否激活。
 
    .. attribute:: volatile
 
-      `True` if the compiler cannot evaluate some expressions at compile
-      time.  At runtime this should always be `False`.
+      如果编译器不能在编译期求出某些表达式的值，为 `True` 。在运行时应该
+      始终为 `False` 。
 
 
 .. _writing-tests:
