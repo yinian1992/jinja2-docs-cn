@@ -1,4 +1,4 @@
-Jinja2 Documentation
+Jinja2 文档
 --------------------
 
 .. toctree::
@@ -13,7 +13,7 @@ Jinja2 Documentation
    switching
    tricks
 
-Additional Information
+额外信息
 ----------------------
 
 .. toctree::
@@ -21,9 +21,3 @@ Additional Information
 
    faq
    changelog
-
-If you can't find the information you're looking for, have a look at the
-index or try to find it using the search function:
-
-* :ref:`genindex`
-* :ref:`search`

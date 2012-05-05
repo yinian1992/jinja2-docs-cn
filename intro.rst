@@ -1,73 +1,67 @@
-Introduction
+介绍
 ============
 
-This is the documentation for the Jinja2 general purpose templating language.
-Jinja2 is a library for Python 2.4 and onwards that is designed to be flexible,
-fast and secure.
+这里是 Jinjin2 通用模板语言的文档。 Jinja2 在其是一个 Python 2.4 库之前，被设计
+为是灵活、快速和安全的。
 
-If you have any exposure to other text-based template languages, such as Smarty or
-Django, you should feel right at home with Jinja2.  It's both designer and
-developer friendly by sticking to Python's principles and adding functionality
-useful for templating environments.
+如果你接触过其它的基于文本的模板语言，比如 Smarty 或 Django ，那么 Jinja2 会让你有
+宾至如归的感觉。Jinja2 通过坚持 Python 原则来保证对设计者和开发者友好，为模板环
+境添加有帮助的功能。
 
-Prerequisites
+预备知识
 -------------
 
-Jinja2 needs at least **Python 2.4** to run.  Additionally a working C-compiler
-that can create python extensions should be installed for the debugger if you
-are using Python 2.4.
+Jinja2 需要至少 **Python 2.4** 版本来运行。此外，如果你使用 Python 2.4 ，一个可
+以创建 python 扩展的可用的 C 编译器会为调试器安装。
 
+如果你没有一个可用的 C 编译器，并且你视图安装带调试支持的源码版本，你会得到一个
+编译器错误。
 If you don't have a working C-compiler and you are trying to install the source
-release with the debugsupport you will get a compiler error.
 
 .. _ctypes: http://python.net/crew/theller/ctypes/
 
 
-Installation
+安装
 ------------
 
-You have multiple ways to install Jinja2.  If you are unsure what to do, go
-with the Python egg or tarball.
+条条大路通 Jinja2 。如果你不确定怎么做，用 Python egg 或 tarball 吧。
 
-As a Python egg (via easy_install)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+作为一个 Python egg （通过 easy_install）
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can install the most recent Jinja2 version using `easy_install`_ or `pip`_::
+你可以用 `easy_install`_ 或 `pip`_ 安装最新的版本的 Jinja2::
 
-    easy_install Jinja2
-    pip install Jinja2
+    sudo easy_install Jinja2
+    sudo pip install Jinja2
 
-This will install a Jinja2 egg in your Python installation's site-packages
-directory.
+这会在你的 Python 安装中的 site-packages 目录安装一个 Jinja2 egg 。
 
-(If you are installing from the windows command line omit the `sudo` and make
-sure to run the command as user with administrator rights)
+（如果你在 Windows 的命令行中安装，省略 `sudo` 并且确保你用管理员权限运行
+命令行）
 
-From the tarball release
+从 tarball 版本安装
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1.  Download the most recent tarball from the `download page`_
-2.  Unpack the tarball
+1.  从 `download page`_ 下载最新的 tarball
+2.  解包 tarball
 3.  ``sudo python setup.py install``
 
-Note that you either have to have setuptools or `distribute`_ installed,
-the latter is preferred.
+注意这需要你已经安装了 setuptools 或 `distribute`_ ，首选后者。
 
-This will install Jinja2 into your Python installation's site-packages directory.
+这会在你 Python 安装的 site-packages 目录安装 Jinja2 。
 
 .. _distribute: http://pypi.python.org/pypi/distribute
 
-Installing the development version
+安装开发版本
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1.  Install `git`_
+1.  安装 `git`_
 2.  ``git clone git://github.com/mitsuhiko/jinja2.git``
 3.  ``cd jinja2``
 4.  ``ln -s jinja2 /usr/lib/python2.X/site-packages``
 
-As an alternative to steps 4 you can also do ``python setup.py develop``
-which will install the package via distribute in development mode.  This also
-has the advantage that the C extensions are compiled.
+作为第四步的替代选择，你也可以执行 ``python setup.py develop`` ，这会通过
+disbribute 在开发模式下安装包。这样也有编译 C 扩展的优势。
 
 .. _download page: http://pypi.python.org/pypi/Jinja2
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
@@ -76,74 +70,62 @@ has the advantage that the C extensions are compiled.
 .. _git: http://git-scm.org/
 
 
-More Speed with MarkupSafe
+加速 MarkupSafe
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As of version 2.5.1 Jinja2 will check for an installed `MarkupSafe`_
-module.  If it can find it, it will use the Markup class of that module
-instead of the one that comes with Jinja2.  `MarkupSafe` replaces the
-older speedups module that came with Jinja2 and has the advantage that is
-has a better setup script and will automatically attempt to install the C
-version and nicely fall back to a pure Python implementation if that is
-not possible.
+从 2.5.1 开始， Jinja2 会检查是否安装 `MarkupSafe`_ 模块。如果它找到了，
+它会用这个模块的 Markup 类来代替自带的。 `MarkupSafe` 替换 Jinja2 中附带的
+老的加速模块，其优势在于更好的安装脚本，自动试图安装 C 的版本并在不可行时
+漂亮地退化到纯 Python 实现的版本。
 
-The C implementation of MarkupSafe is much faster and recommended when
-using Jinja2 with autoescaping.
+MarkupSafe 的 C 实现要快得多，并推荐用于 Jinja2 自动转义。
 
 .. _MarkupSafe: http://pypi.python.org/pypi/MarkupSafe
 
 
-Enable the debug support Module
+启用调试支持模块
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By default Jinja2 will not compile the debug support module.  Enabling this
-will fail if you don't have the Python headers or a working compiler.  This
-is often the case if you are installing Jinja2 from a windows machine.
+默认 Jinja2 不会编译调试支持模块。如果你没有 Python 头文件或可用的编译器，
+启用它会失败。这当你在 Windows 上安装 Jinja2 是很常见的情况。
 
-Because the debug support is only necessary for Python 2.4 you will not
-have to do this unless you run 2.4::
-
+由于调试模式只对 Python 2.4 是必要的，所以你不需要这么做，除非你在运行
+2.4::
     sudo python setup.py --with-debugsupport install
 
 
-Basic API Usage
+基本 API 使用
 ---------------
 
-This section gives you a brief introduction to the Python API for Jinja2
-templates.
+本节简要介绍 Jinja2 模板的 Python API 。
 
-The most basic way to create a template and render it is through
-:class:`~jinja2.Template`.  This however is not the recommended way to
-work with it if your templates are not loaded from strings but the file
-system or another data source:
+最基本的方式就是通过 :class:`~jinja2.Template` 创建一个模板并渲染它。
+如果你的模板不是从字符串加载，而是文件系统或别的数据源，无论如何这都不
+是推荐的方式:
 
 >>> from jinja2 import Template
 >>> template = Template('Hello {{ name }}!')
 >>> template.render(name='John Doe')
 u'Hello John Doe!'
 
-By creating an instance of :class:`~jinja2.Template` you get back a new template
-object that provides a method called :meth:`~jinja2.Template.render` which when
-called with a dict or keyword arguments expands the template.  The dict
-or keywords arguments passed to the template are the so-called "context"
-of the template.
-
-What you can see here is that Jinja2 is using unicode internally and the
-return value is an unicode string.  So make sure that your application is
-indeed using unicode internally.
+通过创建一个 :class:`~jinja2.Template` 的实例，你会得到一个新的模板对象，提供一
+个名为 :meth:`~jinja2.Template.render` 的方法，该方法在有字典或关键字参数时调用
+扩充模板。字典或关键字参数会被传递到模板，即模板“上下文”。
 
 
-Experimental Python 3 Support
+如你所见， Jinja2 内部使用 unicode 并且返回值也是 unicode 字符串。所以确
+保你的应用里也确实使用 unicode 。
+
+
+实验性的 Python 3 支持
 -----------------------------
 
-Jinja 2.3 brings experimental support for Python 3.  It means that all
-unittests pass on the new version, but there might still be small bugs in
-there and behavior might be inconsistent.  If you notice any bugs, please
-provide feedback in the `Jinja bug tracker`_.
+Jinja 2.3 带来 Python 3 的实验性支持。这意味着在新版本上，所有的单元测试
+都会通过，但是仍有一些小 bug 和不一致的行为。如果你发现任何 bug ，请向
+`Jinja bug tracker`_ 提供反馈。
 
-Also please keep in mind that the documentation is written with Python 2
-in mind, you will have to adapt the shown code examples to Python 3 syntax
-for yourself.
+也请记住本文档是为 Python 2 编撰的，你会需要手动把示例代码转换为 Python 3
+的语法。
 
 
 .. _Jinja bug tracker: http://github.com/mitsuhiko/jinja2/issues

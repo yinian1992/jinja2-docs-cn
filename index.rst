@@ -1,9 +1,8 @@
-Welcome to Jinja2
+欢迎来到 Jinja2
 =================
 
-Jinja2 is a modern and designer friendly templating language for Python,
-modelled after Django's templates.  It is fast, widely used and secure
-with the optional sandboxed template execution environment:
+Jinja2 是一个现代的，设计者友好的，仿照 Django 模板的 Python 模板语言。
+它速度快，被广泛使用，并且提供了可选的沙箱模板执行环境保证安全:
 
 .. sourcecode:: html+jinja
 
@@ -14,21 +13,19 @@ with the optional sandboxed template execution environment:
    {% endfor %}
    </ul>
 
-**Features:**
+**特性:**
 
--   sandboxed execution
--   powerful automatic HTML escaping system for XSS prevention
--   template inheritance
--   compiles down to the optimal python code just in time
--   optional ahead of time template compilation
--   easy to debug.  Line numbers of exceptions directly point to
-    the correct line in the template.
--   configurable syntax
+-   沙箱中执行
+-   强大的 HTML 自动转义系统保护系统免受 XSS
+-   模板继承
+-   及时编译最优的 python 代码
+-   可选提前编译模板的时间
+-   易于调试。异常的行数直接指向模板中的对应行。
+-   可配置的语法
 
 .. include:: contents.rst.inc
 
-If you can't find the information you're looking for, have a look at the
-index or try to find it using the search function:
+如果你找不到你想要的信息，请查看索引或尝试用搜索功能搜寻:
 
 * :ref:`genindex`
 * :ref:`search`
