@@ -1,11 +1,10 @@
-Sandbox
+沙箱
 =======
 
-The Jinja2 sandbox can be used to evaluate untrusted code.  Access to unsafe
-attributes and methods is prohibited.
+Jinja2 沙箱用于为不信任的代码求值。访问不安全的属性和方法是被禁止的。
 
-Assuming `env` is a :class:`SandboxedEnvironment` in the default configuration
-the following piece of code shows how it works:
+假定在默认配置中 `env` 是一个 :class:`SandboxedEnvironment` 实例，下面的代码展示
+了它如何工作:
 
 >>> env.from_string("{{ func.func_code }}").render(func=lambda:None)
 u''
@@ -34,48 +33,41 @@ API
 
 .. autofunction:: modifies_known_mutable
 
-.. admonition:: Note
+.. admonition:: 提示
 
-    The Jinja2 sandbox alone is no solution for perfect security.  Especially
-    for web applications you have to keep in mind that users may create
-    templates with arbitrary HTML in so it's crucial to ensure that (if you
-    are running multiple users on the same server) they can't harm each other
-    via JavaScript insertions and much more.
+    Jinja2 沙箱自己并没有彻底解决安全问题。特别是对 web 应用，你必须晓得用户
+    可能用任意 HTML 来创建模板，所以保证他们不通过注入 JavaScript 或其它更多
+    方法来互相损害至关重要（如果你在同一个服务
+    器上运行多用户）。
 
-    Also the sandbox is only as good as the configuration.  We stronly
-    recommend only passing non-shared resources to the template and use
-    some sort of whitelisting for attributes.
+    同样，沙箱的好处取决于配置。我们强烈建议只向模板传递非共享资源，并
+    且使用某种属性白名单。
 
-    Also keep in mind that templates may raise runtime or compile time errors,
-    so make sure to catch them.
+    也请记住，模板会抛出运行时或编译期错误，确保捕获它们。
 
-Operator Intercepting
+运算符拦截
 ---------------------
 
 .. versionadded:: 2.6
 
-For maximum performace Jinja2 will let operators call directly the type
-specific callback methods.  This means that it's not possible to have this
-intercepted by overriding :meth:`Environment.call`.  Furthermore a
-conversion from operator to special method is not always directly possible
-due to how operators work.  For instance for divisions more than one
-special method exist.
+为了性能最大化， Jinja2 会让运算符直接条用类型特定的回调方法。这意味着，
+通过重载 :meth:`Environment.call` 来拦截是不可能的。此外，由于运算符的工作
+方式，把运算符转换为特殊方法不总是直接可行的。比如为了分类，至少一个特殊
+方法存在。
 
-With Jinja 2.6 there is now support for explicit operator intercepting.
-This can be used to customize specific operators as necessary.  In order
-to intercept an operator one has to override the
-:attr:`SandboxedEnvironment.intercepted_binops` attribute.  Once the
-operator that needs to be intercepted is added to that set Jinja2 will
-generate bytecode that calls the :meth:`SandboxedEnvironment.call_binop`
-function.  For unary operators the `unary` attributes and methods have to
-be used instead.
+在 Jinja 2.6 中，开始支持显式的运算符拦截。必要时也可以用于自定义的特定
+运算符。为了拦截运算符，需要覆写
+:attr:`SandboxedEnvironment.intercepted_binops` 属性。当需要拦截的运算符
+被添加到这个集合， Jinja2 会生成调用
+:meth:`SandboxedEnvironment.call_binop` 函数的字节码。对于一元运算符，
+必须替代地使用 `unary` 属性和方法。
 
-The default implementation of :attr:`SandboxedEnvironment.call_binop`
-will use the :attr:`SandboxedEnvironment.binop_table` to translate
-operator symbols into callbacks performing the default operator behavior.
 
-This example shows how the power (``**``) operator can be disabled in
-Jinja2::
+:attr:`SandboxedEnvironment.call_binop` 的默认实现会使用
+:attr:`SandboxedEnvironment.binop_table` 来把运算符标号翻译成执行默认
+运算符行为的回调。
+
+这个例子展示了幂（ ``**`` ）操作符可以在 Jinja2 中禁用::
 
     from jinja2.sandbox import SandboxedEnvironment
 
@@ -89,6 +81,5 @@ Jinja2::
             return SandboxedEnvironment.call_binop(self, context,
                                                    operator, left, right)
 
-Make sure to always call into the super method, even if you are not
-intercepting the call.  Jinja2 might internally call the method to
-evaluate expressions.
+确保始终调入 super 方法，即使你不拦截这个调用。 Jinja2 内部会调用
+这个方法来对表达式求值。
