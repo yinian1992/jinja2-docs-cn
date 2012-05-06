@@ -91,6 +91,7 @@ MarkupSafe 的 C 实现要快得多，并推荐用于 Jinja2 自动转义。
 
 由于调试模式只对 Python 2.4 是必要的，所以你不需要这么做，除非你在运行
 2.4::
+
     sudo python setup.py --with-debugsupport install
 
 
