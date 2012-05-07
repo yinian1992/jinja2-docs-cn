@@ -222,33 +222,28 @@ true 或 false 。
         # endfor
         </ul>
 
-从 Jinja 2.2 开始，行注释也可以使用来。例如如果配置 ``##`` 为行注释前缀，
+从 Jinja 2.2 开始，行注释也可以使用了。例如如果配置 ``##`` 为行注释前缀，
 行中所有 ``##`` 之后的内容（不包括换行符）会被忽略::
 
     # for item in seq:
         <li>{{ item }}</li>     ## this comment is ignored
     # endfor
 
-
 .. _template-inheritance:
 
-Template Inheritance
+模板继承
 --------------------
 
-The most powerful part of Jinja is template inheritance. Template inheritance
-allows you to build a base "skeleton" template that contains all the common
-elements of your site and defines **blocks** that child templates can override.
+Jinja 中最强大的部分就是模板继承。模板继承允许你构建一个包含你站点共同元素的基
+本模板“骨架”，并定义子模板可以覆盖的 **块** 。
 
-Sounds complicated but is very basic. It's easiest to understand it by starting
-with an example.
+听起来复杂，实际上很简单。从例子上手是最易于理解的。
 
-
-Base Template
+基本模板
 ~~~~~~~~~~~~~
 
-This template, which we'll call ``base.html``, defines a simple HTML skeleton
-document that you might use for a simple two-column page. It's the job of
-"child" templates to fill the empty blocks with content::
+这个模板，我们会把它叫做 ``base.html`` ，定义了一个简单的 HTML 骨架文档，你可
+能使用一个简单的两栏页面。用内容填充空的块是子模板的工作::
 
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
     <html lang="en">
@@ -268,14 +263,13 @@ document that you might use for a simple two-column page. It's the job of
         </div>
     </body>
 
-In this example, the ``{% block %}`` tags define four blocks that child templates
-can fill in. All the `block` tag does is to tell the template engine that a
-child template may override those portions of the template.
+在本例中， ``{% block %}`` 标签定义了四个字幕版可以填充的块。所有的 `block` 标签
+告诉模板引擎子模板可以覆盖模板中的这些部分。
 
-Child Template
+子模板
 ~~~~~~~~~~~~~~
 
-A child template might look like this::
+一个子模板看起来是这样::
 
     {% extends "base.html" %}
     {% block title %}Index{% endblock %}
@@ -292,43 +286,36 @@ A child template might look like this::
         </p>
     {% endblock %}
 
-The ``{% extends %}`` tag is the key here. It tells the template engine that
-this template "extends" another template.  When the template system evaluates
-this template, first it locates the parent.  The extends tag should be the
-first tag in the template.  Everything before it is printed out normally and
-may cause confusion.  For details about this behavior and how to take
-advantage of it, see :ref:`null-master-fallback`.
+``{% extend %}`` 标签是这里的关键。它告诉模板引擎这个模板“继承”另一个模板。
+当模板系统对这个模板求值时，首先定位父模板。 extends 标签应该是模板中的第一个
+标签。它前面的所有东西都会按照普通情况打印出来，而且可能会导致一些困惑。更多
+该行为的细节以及如何利用它，见 :ref:`null-master-fallback` 。
 
-The filename of the template depends on the template loader.  For example the
-:class:`FileSystemLoader` allows you to access other templates by giving the
-filename.  You can access templates in subdirectories with a slash::
+模板的文件名依赖于模板加载器。例如 :class:`FileSystemLoader` 允许你用文件名访
+问其它模板。你可以使用斜线访问子目录中的模板::
 
     {% extends "layout/default.html" %}
 
-But this behavior can depend on the application embedding Jinja.  Note that
-since the child template doesn't define the ``footer`` block, the value from
-the parent template is used instead.
+这种行为也可能依赖于应用内嵌的 Jinja 。注意子模板没有定义 ``footer`` 块，会
+使用父模板中的值。
 
-You can't define multiple ``{% block %}`` tags with the same name in the
-same template.  This limitation exists because a block tag works in "both"
-directions.  That is, a block tag doesn't just provide a hole to fill - it
-also defines the content that fills the hole in the *parent*.  If there
-were two similarly-named ``{% block %}`` tags in a template, that template's
-parent wouldn't know which one of the blocks' content to use.
+你不能在同一个模板中定义多个同名的 ``{% block %}`` 标签。因为块标签以两种
+方向工作，所以存在这种限制。即一个块标签不仅提供一个可以填充的部分，也在父级
+定义填充的内容。如果同一个模板中有两个同名的 ``{% blok %}`` 标签，父模板
+无法获知要使用哪一个块的内容。
 
-If you want to print a block multiple times you can however use the special
-`self` variable and call the block with that name::
+如果你想要多次打印一个块，无论如何你可以使用特殊的 `self` 变量并调用与块同名
+的函数::
 
     <title>{% block title %}{% endblock %}</title>
     <h1>{{ self.title() }}</h1>
     {% block body %}{% endblock %}
 
 
-Super Blocks
+Super 块
 ~~~~~~~~~~~~
 
-It's possible to render the contents of the parent block by calling `super`.
-This gives back the results of the parent block::
+可以调用 `super` 来渲染父级块的内容。这会返回父级块的结果::
 
     {% block sidebar %}
         <h3>Table Of Contents</h3>
@@ -337,11 +324,10 @@ This gives back the results of the parent block::
     {% endblock %}
 
 
-Named Block End-Tags
+命名块结束标签
 ~~~~~~~~~~~~~~~~~~~~
 
-Jinja2 allows you to put the name of the block after the end tag for better
-readability::
+Jinja2 允许你在块的结束标签中加入的名称来改善可读性::
 
     {% block sidebar %}
         {% block inner_sidebar %}
@@ -349,115 +335,95 @@ readability::
         {% endblock inner_sidebar %}
     {% endblock sidebar %}
 
-However the name after the `endblock` word must match the block name.
+无论如何， `endblock` 后面的名称一定与块名匹配。
 
 
-Block Nesting and Scope
+嵌套块和作用域
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Blocks can be nested for more complex layouts.  However per default blocks
-may not access variables from outer scopes::
+嵌套块可以胜任更复杂的布局。而默认的块不允许访问块外作用域中的变量::
 
     {% for item in seq %}
         <li>{% block loop_item %}{{ item }}{% endblock %}</li>
     {% endfor %}
 
-This example would output empty ``<li>`` items because `item` is unavailable
-inside the block.  The reason for this is that if the block is replaced by
-a child template a variable would appear that was not defined in the block or
-passed to the context.
+这个例子会输出空的 ``<li>`` 项，因为 `item` 在块中是不可用的。其原因是，如果
+块被子模板替换，变量在其块中可能是未定义的或未被传递到上下文。
 
-Starting with Jinja 2.2 you can explicitly specify that variables are
-available in a block by setting the block to "scoped" by adding the `scoped`
-modifier to a block declaration::
+从 Jinja 2.2 开始，你可以显式地指定在块中可用的变量，只需在块声明中添加
+`scoped` 修饰，就把块设定到作用域中::
 
     {% for item in seq %}
         <li>{% block loop_item scoped %}{{ item }}{% endblock %}</li>
     {% endfor %}
 
-When overriding a block the `scoped` modifier does not have to be provided.
+当覆盖一个块时，不需要提供 `scoped` 修饰。
 
 
-Template Objects
+模板对象
 ~~~~~~~~~~~~~~~~
 
 .. versionchanged:: 2.4
 
-If a template object was passed to the template context you can
-extend from that object as well.  Assuming the calling code passes
-a layout template as `layout_template` to the environment, this
-code works::
+当一个模板对象被传递到模板上下文，你也可以从那个对象继承。假设调用
+代码传递 `layout_template` 布局模板到环境，这段代码会工作::
 
     {% extends layout_template %}
 
-Previously the `layout_template` variable had to be a string with
-the layout template's filename for this to work.
+之前 `layout_template` 变量一定是布局模板文件名的字符串才能工作。
 
-
-HTML Escaping
+HTML 转义
 -------------
 
-When generating HTML from templates, there's always a risk that a variable will
-include characters that affect the resulting HTML.  There are two approaches:
-manually escaping each variable or automatically escaping everything by default.
+当从模板生成 HTML 时，始终有这样的风险:变量包含影响已生成 HTML 的字符。有两种
+解决方法:手动转义每个字符或默认自动转义所有的东西。
 
-Jinja supports both, but what is used depends on the application configuration.
-The default configuaration is no automatic escaping for various reasons:
+Jinja 两者都支持，使用哪个取决于应用的配置。默认的配置未开启自动转义有这样几个
+原因:
 
--   escaping everything except of safe values will also mean that Jinja is
-    escaping variables known to not include HTML such as numbers which is
-    a huge performance hit.
+-   转义所有非安全值的东西也意味着 Jijna 转义已知不包含 HTML 的值，比如数字，对
+    性能有巨大影响。
 
--   The information about the safety of a variable is very fragile.  It could
-    happen that by coercing safe and unsafe values the return value is double
-    escaped HTML.
+-   关于变量安全性的信息是易碎的。可能会发生强制标记一个值为安全或非安全的情况，
+    而返回值会被作为 HTML 转义两次。
 
-Working with Manual Escaping
+使用手动转义
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If manual escaping is enabled it's **your** responsibility to escape
-variables if needed.  What to escape?  If you have a variable that *may*
-include any of the following chars (``>``, ``<``, ``&``, or ``"``) you
-**have to** escape it unless the variable contains well-formed and trusted
-HTML.  Escaping works by piping the variable through the ``|e`` filter:
-``{{ user.username|e }}``.
+如果启用了手动转义，按需转义变量就是 **你的** 责任。要转义什么？如果你有
+一个 *可能* 包含 ``>`` 、 ``<`` 、 ``&`` 或 ``"`` 字符的变量，你必须转义
+它，除非变量中的 HTML 有可信的良好格式。转义通过用管道传递到过滤器 ``|e``
+来实现:
+``{{ user.username|e }}`` 。
 
-Working with Automatic Escaping
+使用自动转义
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When automatic escaping is enabled everything is escaped by default except
-for values explicitly marked as safe.  Those can either be marked by the
-application or in the template by using the `|safe` filter.  The main
-problem with this approach is that Python itself doesn't have the concept
-of tainted values so the information if a value is safe or unsafe can get
-lost.  If the information is lost escaping will take place which means that
-you could end up with double escaped contents.
+当启用了自动转移，默认会转移一切，除非值被显式地标记为安全的。可以在应用中
+标记，也可以在模板中使用 `|safe` 过滤器标记。这种方法的主要问题是 Python 本
+身没有被污染的值的概念，所以一个值是否安全的信息会丢失。如果这个信息丢失，
+会继续转义，你最后会得到一个转义了两次的内容。
 
-Double escaping is easy to avoid however, just rely on the tools Jinja2
-provides and don't use builtin Python constructs such as the string modulo
-operator.
+但双重转义很容易避免，只需要依赖 Jinja2 提供的工具而不使用诸如字符串模运算符
+这样的 Python 内置结构。
 
-Functions returning template data (macros, `super`, `self.BLOCKNAME`) return
-safe markup always.
+返回模板数据（宏、 `super` 、 `self.BLOCKNAME` ）的函数，其返回值总是被标记
+为安全的。
 
-String literals in templates with automatic escaping are considered unsafe
-too.  The reason for this is that the safe string is an extension to Python
-and not every library will work properly with it.
+模板中的字符串字面量在自动转义中被也被视为是不安全的。这是因为安全的字符串是
+一个对 Python 的扩展，而不是每个库都能妥善地使用它。
 
-
-List of Control Structures
+控制结构清单
 --------------------------
 
-A control structure refers to all those things that control the flow of a
-program - conditionals (i.e. if/elif/else), for-loops, as well as things like
-macros and blocks.  Control structures appear inside ``{% ... %}`` blocks
-in the default syntax.
+控制结构指的是所有的那些可以控制程序流的东西 —— 条件（比如 if/elif/ekse ）、
+for 循环、以及宏和块之类的东西。控制结构在默认语法中以 ``{% .. %}`` 块的形式
+出现。
 
 For
 ~~~
 
-Loop over each item in a sequence.  For example, to display a list of users
-provided in a variable called `users`::
+遍历序列中的每项。例如，要显示一个由 `users`` 变量提供的用户列表::
 
     <h1>Members</h1>
     <ul>
@@ -466,8 +432,7 @@ provided in a variable called `users`::
     {% endfor %}
     </ul>
 
-As variables in templates retain their object properties, it is possible to
-iterate over containers like `dict`::
+因为模板中的变量保留它们的对象属性，可以迭代像 `dict` 的容器::
 
     <dl>
     {% for key, value in my_dict.iteritems() %}
@@ -476,61 +441,54 @@ iterate over containers like `dict`::
     {% endfor %}
     </dl>
 
-Note however that dictionaries usually are unordered so you might want to
-either pass it as a sorted list to the template or use the `dictsort`
-filter.
+注意无论如何字典通常是无序的，所以你可能需要把它作为一个已排序的列表传入
+到模板或使用 `dictsort` 过滤器。
 
-Inside of a for-loop block you can access some special variables:
+在一个 for 循环块中你可以访问这些特殊的变量:
 
 +-----------------------+---------------------------------------------------+
-| Variable              | Description                                       |
+| 变量                  | 描述                                              |
 +=======================+===================================================+
-| `loop.index`          | The current iteration of the loop. (1 indexed)    |
+| `loop.index`          | 当前循环迭代的次数（从 1 开始）                   |
 +-----------------------+---------------------------------------------------+
-| `loop.index0`         | The current iteration of the loop. (0 indexed)    |
+| `loop.index0`         | 当前循环迭代的次数（从 0 开始）                   |
 +-----------------------+---------------------------------------------------+
-| `loop.revindex`       | The number of iterations from the end of the loop |
-|                       | (1 indexed)                                       |
+| `loop.revindex`       | 到循环结束需要迭代的次数（从 1 开始）             |
 +-----------------------+---------------------------------------------------+
-| `loop.revindex0`      | The number of iterations from the end of the loop |
-|                       | (0 indexed)                                       |
+| `loop.revindex0`      | 到循环结束需要迭代的次数（从 0 开始）             |
 +-----------------------+---------------------------------------------------+
-| `loop.first`          | True if first iteration.                          |
+| `loop.first`          | 如果是第一次迭代，为 True 。                      |
 +-----------------------+---------------------------------------------------+
-| `loop.last`           | True if last iteration.                           |
+| `loop.last`           | 如果是最后一次迭代，为 True 。                    |
 +-----------------------+---------------------------------------------------+
-| `loop.length`         | The number of items in the sequence.              |
+| `loop.length`         | 序列中的项目数。                                  |
 +-----------------------+---------------------------------------------------+
-| `loop.cycle`          | A helper function to cycle between a list of      |
-|                       | sequences.  See the explanation below.            |
+| `loop.cycle`          | 在一串序列间期取值的辅助函数。见下面的解释。      |
 +-----------------------+---------------------------------------------------+
 
-Within a for-loop, it's possible to cycle among a list of strings/variables
-each time through the loop by using the special `loop.cycle` helper::
+在 for 循环中，可以使用特殊的 `loop.cycle` 辅助函数，伴随循环在一个字符串/变
+量列表中周期取值::
 
     {% for row in rows %}
         <li class="{{ loop.cycle('odd', 'even') }}">{{ row }}</li>
     {% endfor %}
 
-Since Jinja 2.1 an extra `cycle` helper exists that allows loop-unbound
-cycling.  For more information have a look at the :ref:`builtin-globals`.
+从 Jinja 2.1 开始，一个额外的 `cycle` 辅助函数允许循环限定外的周期取值。
+更多信息请阅读 :ref:`builtin-globals` 。
 
 .. _loop-filtering:
 
-Unlike in Python it's not possible to `break` or `continue` in a loop.  You
-can however filter the sequence during iteration which allows you to skip
-items.  The following example skips all the users which are hidden::
+与 Python 中不同，模板中的循环内不能 `break` 或 `continue` 。但你可以在迭代
+中过滤序列来跳过项目。下面的例子中跳过了所有隐藏的用户::
 
     {% for user in users if not user.hidden %}
         <li>{{ user.username|e }}</li>
     {% endfor %}
 
-The advantage is that the special `loop` variable will count correctly thus
-not counting the users not iterated over.
+好处是特殊的 `loop` 可以正确地计数，从而不计入未迭代过的用户。
 
-If no iteration took place because the sequence was empty or the filtering
-removed all the items from the sequence you can render a replacement block
-by using `else`::
+如果因序列是空或者过滤移除了序列中的所有项目而没有执行循环，你可以使用
+`else` 渲染一个用于替换的块::
 
     <ul>
     {% for user in users %}
@@ -540,12 +498,11 @@ by using `else`::
     {% endfor %}
     </ul>
 
-It is also possible to use loops recursively.  This is useful if you are
-dealing with recursive data such as sitemaps.  To use loops recursively you
-basically have to add the `recursive` modifier to the loop definition and
-call the `loop` variable with the new iterable where you want to recurse.
+也可以递归地使用循环。当你处理诸如站点地图之类的递归数据时很有用。要递归地
+使用循环，你只需要在循环定义中加上 `recursive` 修饰，并在你想使用递归的地
+方，对可迭代量调用 `loop` 变量。
 
-The following example implements a sitemap with recursive loops::
+下面的例子用递归循环实现了站点地图::
 
     <ul class="sitemap">
     {%- for item in sitemap recursive %}
@@ -560,9 +517,8 @@ The following example implements a sitemap with recursive loops::
 If
 ~~
 
-The `if` statement in Jinja is comparable with the if statements of Python.
-In the simplest form you can use it to test if a variable is defined, not
-empty or not false::
+Jinja 中的 `if` 语句可比 Python 中的 if 语句。在最简单的形式中，你可以测试
+一个变量是否未定义，为空或 false::
 
     {% if users %}
     <ul>
@@ -572,8 +528,8 @@ empty or not false::
     </ul>
     {% endif %}
 
-For multiple branches `elif` and `else` can be used like in Python.  You can
-use more complex :ref:`expressions` there too::
+像在 Python 中一样，用 `elif` 和 `else` 来构建多个分支。你也可以用更复杂的
+:ref:`expressions`::
 
     {% if kenny.sick %}
         Kenny is sick.
@@ -583,83 +539,73 @@ use more complex :ref:`expressions` there too::
         Kenny looks okay --- so far
     {% endif %}
 
-If can also be used as :ref:`inline expression <if-expression>` and for
-:ref:`loop filtering <loop-filtering>`.
+If 也可以被用作 :ref:`内联表达式 <if-expression>` 并作为
+:ref:`循环过滤 <loop-filtering>` 。
 
-
-Macros
+宏
 ~~~~~~
 
-Macros are comparable with functions in regular programming languages.  They
-are useful to put often used idioms into reusable functions to not repeat
-yourself.
+宏类似常规编程语言中的函数。它们用于把常用行为作为可重用的函数，取代
+手动重复的工作。
 
-Here a small example of a macro that renders a form element::
+这里是一个宏渲染表单元素的小例子::
 
     {% macro input(name, value='', type='text', size=20) -%}
         <input type="{{ type }}" name="{{ name }}" value="{{
             value|e }}" size="{{ size }}">
     {%- endmacro %}
 
-The macro can then be called like a function in the namespace::
+在命名空间中，宏之后可以像函数一样调用::
 
     <p>{{ input('username') }}</p>
     <p>{{ input('password', type='password') }}</p>
 
-If the macro was defined in a different template you have to
-:ref:`import <import>` it first.
+如果宏在不同的模板中定义，你需要首先使用 :ref:`import <import>` 。
 
-Inside macros you have access to three special variables:
+在宏内部，你可以访问三个特殊的变量:
 
 `varargs`
-    If more positional arguments are passed to the macro than accepted by the
-    macro they end up in the special `varargs` variable as list of values.
+    如果有多于宏接受的参数个数的位置参数被传入，它们会作为列表的值保存在
+    `varargs` 变量上。
 
 `kwargs`
-    Like `varargs` but for keyword arguments.  All unconsumed keyword
-    arguments are stored in this special variable.
+    同 `varargs` ，但只针对关键字参数。所有未使用的关键字参数会存储在
+    这个特殊变量中。
 
 `caller`
-    If the macro was called from a :ref:`call<call>` tag the caller is stored
-    in this variable as macro which can be called.
+    如果宏通过 :ref:`call <call>` 标签调用，调用者会作为可调用的宏被存储在这个
+    变量中。
 
-Macros also expose some of their internal details.  The following attributes
-are available on a macro object:
+宏也可以暴露某些内部细节。下面的宏对象属性是可用的:
 
 `name`
-    The name of the macro.  ``{{ input.name }}`` will print ``input``.
+    宏的名称。 ``{{ input.name }}`` 会打印 ``input`` 。
 
 `arguments`
-    A tuple of the names of arguments the macro accepts.
+    一个宏接受的参数名的元组。
 
 `defaults`
-    A tuple of default values.
+    默认值的元组。
 
 `catch_kwargs`
-    This is `true` if the macro accepts extra keyword arguments (ie: accesses
-    the special `kwargs` variable).
+    如果宏接受额外的关键字参数（也就是访问特殊的 `kwargs` 变量），为 `true` 。
 
 `catch_varargs`
-    This is `true` if the macro accepts extra positional arguments (ie:
-    accesses the special `varargs` variable).
+    如果宏接受额外的位置参数（也就是访问特殊的 `varargs` 变量），为 `true` 。
 
 `caller`
-    This is `true` if the macro accesses the special `caller` variable and may
-    be called from a :ref:`call<call>` tag.
+    如果宏访问特殊的 `caller` 变量且由 :ref:`call<call>` 标签调用，为 `true` 。
 
-If a macro name starts with an underscore it's not exported and can't
-be imported.
+如果一个宏的名称以下划线开始，它不是导出的且不能被导入。
 
 
 .. _call:
 
-Call
+调用
 ~~~~
 
-In some cases it can be useful to pass a macro to another macro.  For this
-purpose you can use the special `call` block.  The following example shows
-a macro that takes advantage of the call functionality and how it can be
-used::
+在某些情况下，需要把一个宏传递到另一个宏。为此，可以使用特殊的 `call` 块。
+下面的例子展示了如何让宏利用调用功能::
 
     {% macro render_dialog(title, class='dialog') -%}
         <div class="{{ class }}">
@@ -675,11 +621,10 @@ used::
         a call block.
     {% endcall %}
 
-It's also possible to pass arguments back to the call block.  This makes it
-useful as replacement for loops.  Generally speaking a call block works
-exactly like an macro, just that it doesn't have a name.
+也可以向调用块传递参数。这在为循环做替换时很有用。总而言之，调用块的工作方
+式几乎与宏相同，只是调用块没有名称。
 
-Here an example of how a call block can be used with arguments::
+这里是一个带参数的调用块的例子::
 
     {% macro dump_users(users) -%}
         <ul>
