@@ -1,28 +1,23 @@
-Template Designer Documentation
+模板设计者文档
 ===============================
 
 .. highlight:: html+jinja
 
-This document describes the syntax and semantics of the template engine and
-will be most useful as reference to those creating Jinja templates.  As the
-template engine is very flexible the configuration from the application might
-be slightly different from here in terms of delimiters and behavior of
-undefined values.
+这份文档描述了模板引擎中的语法和语义结构，对于创建 Jinja 模板是一份相当有用
+的参考。因为模板引擎非常灵活，应用中的配置会在分隔符和未定义值的行为方面与
+这里的配置有细微差异。
 
 
-Synopsis
+概要
 --------
 
-A template is simply a text file.  It can generate any text-based format
-(HTML, XML, CSV, LaTeX, etc.).  It doesn't have a specific extension,
-``.html`` or ``.xml`` are just fine.
+模板仅仅是文本文件。它可以生成任何基于文本的格式（HTML、XML、CSV、LaTex 等等）。
+它并没有特定的扩展名， ``.html`` 或 ``.xml`` 都是可以的。
 
-A template contains **variables** or **expressions**, which get replaced with
-values when the template is evaluated, and tags, which control the logic of
-the template.  The template syntax is heavily inspired by Django and Python.
+模板包含 **变量** 或 **表达式** ，这两者在模板求值的时候会被替换为值。模板中
+还有标签，控制模板的逻辑。模板语法的大量灵感来自于 Django 和 Python 。
 
-Below is a minimal template that illustrates a few basics.  We will cover
-the details later in that document::
+下面是一个最小的模板，它阐明了一些基础。我们会在文档中后面的部分解释细节::
 
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
     <html lang="en">
@@ -41,106 +36,90 @@ the details later in that document::
     </body>
     </html>
 
-This covers the default settings.  The application developer might have
-changed the syntax from ``{% foo %}`` to ``<% foo %>`` or something similar.
+这包含了默认的设定。应用开发者也会把语法从 ``{% foo %}`` 改成 ``<% foo %>``
+或类似的东西。
 
-There are two kinds of delimiters. ``{% ... %}`` and ``{{ ... }}``.  The first
-one is used to execute statements such as for-loops or assign values, the
-latter prints the result of the expression to the template.
+这里有两种分隔符:  ``{% ... %}`` 和 ``{{ ... }}`` 。前者用于执行诸如 for 循环
+或赋值的语句，后者把表达式的结果打印到模板上。
 
 .. _variables:
 
-Variables
+变量
 ---------
 
-The application passes variables to the templates you can mess around in the
-template.  Variables may have attributes or elements on them you can access
-too.  How a variable looks like, heavily depends on the application providing
-those.
+应用把变量传递到模板，你可能在模板中弄混。变量上面也可以有你能访问的属性或元
+素。变量看起来是什么，完全取决于应用提供了什么。
 
-You can use a dot (``.``) to access attributes of a variable, alternative the
-so-called "subscript" syntax (``[]``) can be used.  The following lines do
-the same::
+你可以使用点（ ``.`` ）来访问变量的属性，作为替代，也可以使用所谓的“下标”语
+法（ ``[]`` ）。下面的几行效果是一样的::
 
     {{ foo.bar }}
     {{ foo['bar'] }}
 
-It's important to know that the curly braces are *not* part of the variable
-but the print statement.  If you access variables inside tags don't put the
-braces around.
+知晓花括号 *不是* 变量的一部分，而是打印语句的一部分是重要的。如果你访问标签
+里的不带括号的变量。
 
-If a variable or attribute does not exist you will get back an undefined
-value.  What you can do with that kind of value depends on the application
-configuration, the default behavior is that it evaluates to an empty string
-if printed and that you can iterate over it, but every other operation fails.
+如果变量或属性不存在，会返回一个未定义值。你可以对这类值做什么取决于应用的配
+置，默认的行为是它如果被打印，其求值为一个空字符串，并且你可以迭代它，但其它
+操作会失败。
 
 .. _notes-on-subscriptions:
 
-.. admonition:: Implementation
+.. admonition:: 实现
 
-    For convenience sake ``foo.bar`` in Jinja2 does the following things on
-    the Python layer:
+    为方便起见，Jinja2 中 ``foo.bar`` 在 Python 层中做下面的事情:
+    
+    -   检查 `foo` 上是否有一个名为 `bar` 的属性。
+    -   如果没有，检查 `foo` 中是否有一个 ``'bar'`` 项 。
+    -   如果没有，返回一个未定义对象。
 
-    -   check if there is an attribute called `bar` on `foo`.
-    -   if there is not, check if there is an item ``'bar'`` in `foo`.
-    -   if there is not, return an undefined object.
+    ``foo['bar']`` 的方式相反，只在顺序上有细小差异:
 
-    ``foo['bar']`` on the other hand works mostly the same with the a small
-    difference in the order:
+    -   检查在 `foo` 中是否有一个 ``'bar'`` 项。
+    -   如果没有，检查 `foo` 上是否有一个名为 `bar` 的属性。
+    -   如果没有，返回一个未定义对象。
 
-    -   check if there is an item ``'bar'`` in `foo`.
-    -   if there is not, check if there is an attribute called `bar` on `foo`.
-    -   if there is not, return an undefined object.
-
-    This is important if an object has an item or attribute with the same
-    name.  Additionally there is the :func:`attr` filter that just looks up
-    attributes.
+    如果一个对象有同名的项和属性，这很重要。此外，有一个 :func:`attr` 过滤
+    器，它只查找属性。
 
 .. _filters:
 
-Filters
+过滤器
 -------
 
-Variables can be modified by **filters**.  Filters are separated from the
-variable by a pipe symbol (``|``) and may have optional arguments in
-parentheses.  Multiple filters can be chained.  The output of one filter is
-applied to the next.
+变量可以通过 **过滤器** 修改。过滤器与变量用管道符号（ ``|`` ）分割，并且也
+可以用圆括号传递可选参数。多个过滤器可以链式调用，前一个过滤器的输出会被作为
+后一个过滤器的输入。
 
-``{{ name|striptags|title }}`` for example will remove all HTML Tags from the
-`name` and title-cases it.  Filters that accept arguments have parentheses
-around the arguments, like a function call.  This example will join a list
-by commas:  ``{{ list|join(', ') }}``.
+例如 ``{{ name|striptags|title }}`` 会移除 `name` 中的所有 HTML 标签并且改写
+为标题样式的大小写格式。过滤器接受带圆括号的参数，如同函数调用。这个例子会
+把一个列表用逗号连接起来: ``{{ list|join(', ') }}`` 。
 
-The :ref:`builtin-filters` below describes all the builtin filters.
+下面的 :ref:`builtin-filters` 节介绍了所有的内置过滤器。
 
 .. _tests:
 
-Tests
+测试
 -----
 
-Beside filters there are also so called "tests" available.  Tests can be used
-to test a variable against a common expression.  To test a variable or
-expression you add `is` plus the name of the test after the variable.  For
-example to find out if a variable is defined you can do ``name is defined``
-which will then return true or false depending on if `name` is defined.
+除了过滤器，所谓的“测试”也是可用的。测试可以用于对照普通表达式测试一个变量。
+要测试一个变量或表达式，你要在变量后加上一个 `is` 以及测试的名称。例如，要得出
+一个值是否定义过，你可以用 ``name is defined`` ，这会根据 `name` 是否定义返回
+true 或 false 。
 
-Tests can accept arguments too.  If the test only takes one argument you can
-leave out the parentheses to group them.  For example the following two
-expressions do the same::
+测试也可以接受参数。如果测试只接受一个参数，你可以省去括号来分组它们。例如，
+下面的两个表达式做同样的事情::
 
     {% if loop.index is divisibleby 3 %}
     {% if loop.index is divisibleby(3) %}
 
-The :ref:`builtin-tests` below describes all the builtin tests.
+下面的 :ref:`builtin-tests` 章节介绍了所有的内置测试。
 
-
-Comments
+注释
 --------
 
-To comment-out part of a line in a template, use the comment syntax which is
-by default set to ``{# ... #}``.  This is useful to comment out parts of the
-template for debugging or to add information for other template designers or
-yourself::
+要把模板中一行的部分注释掉，默认使用 ``{# ... #}`` 注释语法。这在调试或
+添加给你自己或其它模板设计者的信息时是有用的::
 
     {# note: disabled template because we no longer use this
         {% for user in users %}
@@ -149,57 +128,51 @@ yourself::
     #}
 
 
-Whitespace Control
+空白控制
 ------------------
 
-In the default configuration whitespace is not further modified by the
-template engine, so each whitespace (spaces, tabs, newlines etc.) is returned
-unchanged.  If the application configures Jinja to `trim_blocks` the first
-newline after a a template tag is removed automatically (like in PHP).
+默认配置中，模板引擎不会对空白做进一步修改，所以每个空白（空格、制表符、换行符
+等等）都会原封不动返回。如果应用配置了 Jinja 的 `trim_blocks` ，模板标签后的
+第一个换行符会被自动移除（像 PHP 中一样）。
 
-But you can also strip whitespace in templates by hand.  If you put an minus
-sign (``-``) to the start or end of an block (for example a for tag), a
-comment or variable expression you can remove the whitespaces after or before
-that block::
+此外，你也可以手动剥离模板中的空白。当你在块（比如一个 for 标签、一段注释或变
+量表达式）的开始或结束放置一个减号（ ``-`` ），可以移除块前或块后的空白::
 
     {% for item in seq -%}
         {{ item }}
     {%- endfor %}
 
-This will yield all elements without whitespace between them.  If `seq` was
-a list of numbers from ``1`` to ``9`` the output would be ``123456789``.
+这会产出中间不带空白的所有元素。如果 `seq` 是 ``1`` 到 ``9`` 的数字的列表，
+输出会是 ``123456789`` 。
 
-If :ref:`line-statements` are enabled they strip leading whitespace
-automatically up to the beginning of the line.
+如果开启了 :ref:`line-statements` ，它们会自动去除行首的空白。
 
-.. admonition:: Note
+.. admonition:: 提示
 
-    You must not use a whitespace between the tag and the minus sign.
+    标签和减号之间不能有空白。
 
-    **valid**::
+    **有效的**::
 
         {%- if foo -%}...{% endif %}
 
-    **invalid**::
+    **无效的**::
 
         {% - if foo - %}...{% endif %}
 
 
-Escaping
+转义
 --------
 
-It is sometimes desirable or even necessary to have Jinja ignore parts it
-would otherwise handle as variables or blocks.  For example if the default
-syntax is used and you want to use ``{{`` as raw string in the template and
-not start a variable you have to use a trick.
+有时想要或甚至必要让 Jinja 忽略部分，不会把它作为变量或块来处理。例如，如果
+使用默认语法，你想在在使用把 ``{{`` 作为原始字符串使用，并且不会开始一个变量
+的语法结构，你需要使用一个技巧。
 
-The easiest way is to output the variable delimiter (``{{``) by using a
-variable expression::
+最简单的方法是在变量分隔符中（ ``{{`` ）使用变量表达式输出::
 
     {{ '{{' }}
 
-For bigger sections it makes sense to mark a block `raw`.  For example to
-put Jinja syntax as example into a template you can use this snippet::
+对于较大的段落，标记一个块为  `raw` 是有意义的。例如展示 Jinja 语法的实例，
+你可以在模板中用这个片段::
 
     {% raw %}
         <ul>
@@ -212,12 +185,11 @@ put Jinja syntax as example into a template you can use this snippet::
 
 .. _line-statements:
 
-Line Statements
+行语句
 ---------------
 
-If line statements are enabled by the application it's possible to mark a
-line as a statement.  For example if the line statement prefix is configured
-to ``#`` the following two examples are equivalent::
+如果应用启用了行语句，就可以把一个行标记为一个语句。例如如果行语句前缀配置为
+``#`` ，下面的两个例子是等价的::
 
     <ul>
     # for item in seq
@@ -231,19 +203,17 @@ to ``#`` the following two examples are equivalent::
     {% endfor %}
     </ul>
 
-The line statement prefix can appear anywhere on the line as long as no text
-precedes it.  For better readability statements that start a block (such as
-`for`, `if`, `elif` etc.) may end with a colon::
+行语句前缀可以出现在一行的任意位置，只要它前面没有文本。为了语句有更好的可读
+性，在块的开始（比如 `for` 、 `if` 、 `elif` 等等）以冒号结尾::
 
     # for item in seq:
         ...
     # endfor
 
 
-.. admonition:: Note
+.. admonition:: 提示
 
-    Line statements can span multiple lines if there are open parentheses,
-    braces or brackets::
+    若有未闭合的圆括号、花括号或方括号，行语句可以跨越多行::
 
         <ul>
         # for href, caption in [('index.html', 'Index'),
@@ -252,9 +222,8 @@ precedes it.  For better readability statements that start a block (such as
         # endfor
         </ul>
 
-Since Jinja 2.2 line-based comments are available as well.  For example if
-the line-comment prefix is configured to be ``##`` everything from ``##`` to
-the end of the line is ignored (excluding the newline sign)::
+从 Jinja 2.2 开始，行注释也可以使用来。例如如果配置 ``##`` 为行注释前缀，
+行中所有 ``##`` 之后的内容（不包括换行符）会被忽略::
 
     # for item in seq:
         <li>{{ item }}</li>     ## this comment is ignored
