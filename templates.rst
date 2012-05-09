@@ -644,65 +644,58 @@ If 也可以被用作 :ref:`内联表达式 <if-expression>` 并作为
     {% endcall %}
 
 
-Filters
+过滤器    
 ~~~~~~~
 
-Filter sections allow you to apply regular Jinja2 filters on a block of
-template data.  Just wrap the code in the special `filter` section::
+过滤器段允许你在一块模板数据上应用常规 Jinja2 过滤器。只需要把代码用
+`filter` 节包裹起来::
 
     {% filter upper %}
         This text becomes uppercase
     {% endfilter %}
 
 
-Assignments
+赋值
 ~~~~~~~~~~~
 
-Inside code blocks you can also assign values to variables.  Assignments at
-top level (outside of blocks, macros or loops) are exported from the template
-like top level macros and can be imported by other templates.
+在代码块中，你也可以为变量赋值。在顶层的（块、宏、循环之外）赋值是可导出的，即
+可以从别的模板中导入。
 
-Assignments use the `set` tag and can have multiple targets::
+赋值使用 `set` 标签，并且可以为多个变量赋值::
 
     {% set navigation = [('index.html', 'Index'), ('about.html', 'About')] %}
     {% set key, value = call_something() %}
 
 
-Extends
+继承
 ~~~~~~~
 
-The `extends` tag can be used to extend a template from another one.  You
-can have multiple of them in a file but only one of them may be executed
-at the time.  See the section about :ref:`template-inheritance` above.
+`extends` 标签用于从另一个模板继承。你可以在一个文件中使用多次继承，但是
+只会执行其中的一个。见上面的关于 :ref:`template-inheritance` 的节。
 
-
-Block
+块
 ~~~~~
 
-Blocks are used for inheritance and act as placeholders and replacements
-at the same time.  They are documented in detail as part of the section
-about :ref:`template-inheritance`.
+块用于继承，同时作为占位符和用于替换的内容。 :ref:`template-inheritance`
+节中详细地介绍了块。
 
-
-Include
+包含
 ~~~~~~~
 
-The `include` statement is useful to include a template and return the
-rendered contents of that file into the current namespace::
+`include` 语句用于包含一个模板，并在当前命名空间中返回那个文件的内容渲
+染结果::
 
     {% include 'header.html' %}
         Body
     {% include 'footer.html' %}
 
-Included templates have access to the variables of the active context by
-default.  For more details about context behavior of imports and includes
-see :ref:`import-visibility`.
+被包含的模板默认可以访问活动的上下文中的变量。更多关于导入和包含的上下文
+行为见 :ref:`import-visibility` 。
 
-From Jinja 2.2 onwards you can mark an include with ``ignore missing`` in
-which case Jinja will ignore the statement if the template to be ignored
-does not exist.  When combined with ``with`` or ``without context`` it has
-to be placed *before* the context visibility statement.  Here some valid
-examples::
+从 Jinja 2.2 开始，你可以把一句 include 用 ``ignore missing`` 标记，这样
+如果模板不存在，Jinja 会忽略这条语句。当与 ``with`` 或 ``without context``
+语句联合使用时，它必须被放在上下文可见性语句 *之前* 。这里是一些有效的例
+子::
 
     {% include "sidebar.html" ignore missing %}
     {% include "sidebar.html" ignore missing with context %}
@@ -710,36 +703,34 @@ examples::
 
 .. versionadded:: 2.2
 
-You can also provide a list of templates that are checked for existence
-before inclusion.  The first template that exists will be included.  If
-`ignore missing` is given, it will fall back to rendering nothing if
-none of the templates exist, otherwise it will raise an exception.
+你也可以提供一个模板列表，它会在包含前被检查是否存在。第一个存在的模板会
+被包含进来。如果给出了 `ignore missing` ，且所有这些模板都不存在，会退化
+至不做任何渲染，否则将会抛出一个异常。
 
-Example::
+例子::
 
     {% include ['page_detailed.html', 'page.html'] %}
     {% include ['special_sidebar.html', 'sidebar.html'] ignore missing %}
 
 .. versionchanged:: 2.4
-   If a template object was passed to the template context you can
-   include that object using `include`.
+
+   如果传递一个模板对象到模板上下文，你可以用 `include` 包含这个对
+   象。
 
 .. _import:
 
-Import
+导入
 ~~~~~~
 
-Jinja2 supports putting often used code into macros.  These macros can go into
-different templates and get imported from there.  This works similar to the
-import statements in Python.  It's important to know that imports are cached
-and imported templates don't have access to the current template variables,
-just the globals by default.  For more details about context behavior of
-imports and includes see :ref:`import-visibility`.
+Jinja2 支持在宏中放置经常使用的代码。这些宏可以被导入，并不同的模板中使用。这
+与 Python 中的 import 语句类似。要知道的是，导入量会被缓存，并且默认下导入的
+模板不能访问当前模板中的非全局变量。更多关于导入和包含的上下文行为见
+:ref:`import-visibility` 。
 
-There are two ways to import templates.  You can import the complete template
-into a variable or request specific macros / exported variables from it.
+有两种方式来导入模板。你可以把整个模板导入到一个变量或从其中导入请求特定的宏
+/导出量。
 
-Imagine we have a helper module that renders forms (called `forms.html`)::
+比如我们有一个渲染表单（名为 `forms.html` ）的助手模块::
 
     {% macro input(name, value='', type='text') -%}
         <input type="{{ type }}" value="{{ value|e }}" name="{{ name }}">
@@ -750,8 +741,7 @@ Imagine we have a helper module that renders forms (called `forms.html`)::
             }}">{{ value|e }}</textarea>
     {%- endmacro %}
 
-The easiest and most flexible is importing the whole module into a variable.
-That way you can access the attributes::
+最简单灵活的方式是把整个模块导入为一个变量。这样你可以访问属性::
 
     {% import 'forms.html' as forms %}
     <dl>
@@ -763,8 +753,7 @@ That way you can access the attributes::
     <p>{{ forms.textarea('comment') }}</p>
 
 
-Alternatively you can import names from the template into the current
-namespace::
+此外你也可以从模板中导入名称到当前的命名空间::
 
     {% from 'forms.html' import input as input_field, textarea %}
     <dl>
@@ -775,46 +764,40 @@ namespace::
     </dl>
     <p>{{ textarea('comment') }}</p>
 
-Macros and variables starting with one ore more underscores are private and
-cannot be imported.
+名称以一个或更多下划线开始的宏和变量是私有的，不能被导入。
 
 .. versionchanged:: 2.4
-   If a template object was passed to the template context you can
-   import from that object.
 
+   如果传递一个模板对象到模板上下文，从那个对象中导入。
 
 .. _import-visibility:
 
-Import Context Behavior
+导入上下文行为
 -----------------------
 
-Per default included templates are passed the current context and imported
-templates not.  The reason for this is that imports unlike includes are
-cached as imports are often used just as a module that holds macros.
+默认下，每个包含的模板会被传递到当前上下文，而导入的模板不会。这样做的原因
+是导入量不会像包含量被缓存，因为导入量经常只作容纳宏的模块。
 
-This however can be changed of course explicitly.  By adding `with context`
-or `without context` to the import/include directive the current context
-can be passed to the template and caching is disabled automatically.
+无论如何，这当然也可以显式地更改。通过在 import/include 声明中直接添加
+`with context` 或 `without context` ，当前的上下文可以传递到模板，而且不会
+自动禁用缓存。
 
-Here two examples::
+这里有两个例子::
 
     {% from 'forms.html' import input with context %}
     {% include 'header.html' without context %}
 
-.. admonition:: Note
+.. admonition:: 提示
 
-    In Jinja 2.0 the context that was passed to the included template
-    did not include variables defined in the template.  As a matter of
-    fact this did not work::
+    在 Jinja 2.0 中，被传递到被包含模板的上下文不包含模板中定义的变量。
+    事实上，这不能工作::
 
         {% for box in boxes %}
             {% include "render_box.html" %}
         {% endfor %}
 
-    The included template ``render_box.html`` is *not* able to access
-    `box` in Jinja 2.0. As of Jinja 2.1 ``render_box.html`` *is* able
-    to do so.
-
+    在 Jinja 2.0 中，被包含的模板 ``render_box.html`` *不能* 访问
+    `box` 。从 Jinja 2.1 开始， ``render_box.html`` *可以* 这么做。
 
 .. _expressions:
 
