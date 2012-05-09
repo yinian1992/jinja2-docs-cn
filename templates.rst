@@ -1256,22 +1256,23 @@ are equivalent::
 
 .. _autoescape-overrides:
 
-Autoescape Extension
+自动转义扩展
 --------------------
 
 .. versionadded:: 2.4
 
-If the application enables the :ref:`autoescape-extension` one can
-activate and deactivate the autoescaping from within the templates.
+如果你的应用程序设置了 :ref:`autoescape-extension` ，你就可以在模版中开启或者关闭自动转义。
 
-Example::
+
+例子::
 
     {% autoescape true %}
-        Autoescaping is active within this block
+    自动转义在这块文本中是开启的。
     {% endautoescape %}
 
     {% autoescape false %}
-        Autoescaping is inactive within this block
+    自动转义在这块文本中是关闭的。
     {% endautoescape %}
 
-After the `endautoescape` the behavior is reverted to what it was before.
+
+在 `endautoescape` 标签之后，自动转义的行为将回到与之前相同的状态。
