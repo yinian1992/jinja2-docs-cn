@@ -801,35 +801,30 @@ Jinja2 支持在宏中放置经常使用的代码。这些宏可以被导入，�
 
 .. _expressions:
 
-Expressions
+表达式
 -----------
 
-Jinja allows basic expressions everywhere.  These work very similar to regular
-Python and even if you're not working with Python you should feel comfortable
-with it.
+Jinja 中到处都允许使用基本表达式。这像常规的 Python 一样工作，即使你不用
+Python 工作，你也会感受到其带来的便利。
 
-Literals
+字面量
 ~~~~~~~~
 
-The simplest form of expressions are literals.  Literals are representations
-for Python objects such as strings and numbers.  The following literals exist:
+表达式最简单的形式就是字面量。字面量表示诸如字符串和数值的 Python 对象。下面
+的字面量是可用的:
 
 "Hello World":
-    Everything between two double or single quotes is a string.  They are
-    useful whenever you need a string in the template (for example as
-    arguments to function calls, filters or just to extend or include a
-    template).
+    双引号或单引号中间的一切都是字符串。无论何时你需要在模板中使用一个字
+    符串（比如函数调用、过滤器或只是包含或继承一个模板的参数），它们都是
+    有用的。
 
 42 / 42.23:
-    Integers and floating point numbers are created by just writing the
-    number down.  If a dot is present the number is a float, otherwise an
-    integer.  Keep in mind that for Python ``42`` and ``42.0`` is something
-    different.
+    直接写下数值就可以创建整数和浮点数。如果有小数点，则为浮点数，否则为
+    整数。记住在 Python 里， ``42`` 和 ``42.0`` 是不一样的。
 
 ['list', 'of', 'objects']:
-    Everything between two brackets is a list.  Lists are useful to store
-    sequential data in or to iterate over them.  For example you can easily
-    create a list of links using lists and tuples with a for loop::
+    一对中括号括起来的东西是一个列表。列表用于存储和迭代序列化的数据。例如
+    你可以容易地在 for 循环中用列表和元组创建一个链接的列表::
 
         <ul>
         {% for href, caption in [('index.html', 'Index'), ('about.html', 'About'),
@@ -839,165 +834,149 @@ for Python objects such as strings and numbers.  The following literals exist:
         </ul>
 
 ('tuple', 'of', 'values'):
-    Tuples are like lists, just that you can't modify them.  If the tuple
-    only has one item you have to end it with a comma.  Tuples are usually
-    used to represent items of two or more elements.  See the example above
-    for more details.
+    元组与列表类似，只是你不能修改元组。如果元组中只有一个项，你需要以逗号
+    结尾它。元组通常用于表示两个或更多元素的项。更多细节见上面的例子。
 
 {'dict': 'of', 'key': 'and', 'value': 'pairs'}:
-    A dict in Python is a structure that combines keys and values.  Keys must
-    be unique and always have exactly one value.  Dicts are rarely used in
-    templates, they are useful in some rare cases such as the :func:`xmlattr`
-    filter.
+    Python 中的字典是一种关联键和值的结构。键必须是唯一的，并且键必须只有一个
+    值。字典在模板中很少使用，罕用于诸如 :func:`xmlattr` 过滤器之类。
 
 true / false:
-    true is always true and false is always false.
+    true 永远是 true ，而 false 始终是 false 。
 
-.. admonition:: Note
+.. admonition:: 提示
 
-    The special constants `true`, `false` and `none` are indeed lowercase.
-    Because that caused confusion in the past, when writing `True` expands
-    to an undefined variable that is considered false, all three of them can
-    be written in title case too (`True`, `False`, and `None`).  However for
-    consistency (all Jinja identifiers are lowercase) you should use the
-    lowercase versions.
+    特殊常量 `true` 、 `false` 和 `none` 实际上是小写的。因为这在过去会导致
+    混淆，过去 `True` 扩展为一个被认为是 false 的未定义的变量。所有的这三个
+    常量也可以被写成首字母大写（ `True` 、 `False` 和 `None` ）。尽管如此，
+    为了一致性（所有的 Jinja 标识符是小写的），你应该使用小写的版本。
 
-Math
+算术
 ~~~~
 
-Jinja allows you to calculate with values.  This is rarely useful in templates
-but exists for completeness' sake.  The following operators are supported:
+Jinja 允许你用计算值。这在模板中很少用到，但是为了完整性允许其存在。支持下面的
+运算符:
 
 \+
-    Adds two objects together.  Usually the objects are numbers but if both are
-    strings or lists you can concatenate them this way.  This however is not
-    the preferred way to concatenate strings!  For string concatenation have
-    a look at the ``~`` operator.  ``{{ 1 + 1 }}`` is ``2``.
+    把两个对象加到一起。通常对象是素质，但是如果两者是字符串或列表，你可以用这
+    种方式来衔接它们。无论如何这不是首选的连接字符串的方式！连接字符串见 ``~``
+    运算符。 ``{{ 1 + 1 }}`` 等于 ``2`` 。
 
 \-
-    Substract the second number from the first one.  ``{{ 3 - 2 }}`` is ``1``.
+    用第一个数减去第二个数。 ``{{ 3 - 2 }}`` 等于 ``1`` 。
 
 /
-    Divide two numbers.  The return value will be a floating point number.
-    ``{{ 1 / 2 }}`` is ``{{ 0.5 }}``.
+    对两个数做除法。返回值会是一个浮点数。
+    ``{{ 1 / 2 }}`` 等于 ``{{ 0.5 }}`` 。
 
 //
-    Divide two numbers and return the truncated integer result.
-    ``{{ 20 // 7 }}`` is ``2``.
+    对两个数做除法，返回整数商。
+    ``{{ 20 // 7 }}`` 等于 ``2`` 。
 
 %
-    Calculate the remainder of an integer division.  ``{{ 11 % 7 }}`` is ``4``.
+    计算整数除法的余数。 ``{{ 11 % 7 }}`` 等于 ``4`` 。
 
 \*
-    Multiply the left operand with the right one.  ``{{ 2 * 2 }}`` would
-    return ``4``.  This can also be used to repeat a string multiple times.
-    ``{{ '=' * 80 }}`` would print a bar of 80 equal signs.
+    用右边的数乘左边的操作数。 ``{{ 2 * 2 }}`` 会返回 ``4`` 。也可以用于重
+    复一个字符串多次。 ``{{ ‘=’ * 80 }}`` 会打印 80 个等号的横条。
 
 \**
-    Raise the left operand to the power of the right operand.  ``{{ 2**3 }}``
-    would return ``8``.
+    取左操作数的右操作数次幂。 ``{{ 2**3 }}`` 会返回 ``8`` 。
 
-Comparisons
+比较
 ~~~~~~~~~~~
 
 ==
-    Compares two objects for equality.
+    比较两个对象是否相等。
 
 !=
-    Compares two objects for inequality.
+    比较两个对象是否不等。
 
 >
-    `true` if the left hand side is greater than the right hand side.
+    如果左边大于右边，返回 `true` 。
 
 >=
-    `true` if the left hand side is greater or equal to the right hand side.
+    如果左边大于等于右边，返回 `true` 。
 
 <
-    `true` if the left hand side is lower than the right hand side.
+    如果左边小于右边，返回 `true` 。
 
 <=
-    `true` if the left hand side is lower or equal to the right hand side.
+    如果左边小于等于右边，返回 `true` 。
 
-Logic
+逻辑
 ~~~~~
 
-For `if` statements, `for` filtering or `if` expressions it can be useful to
-combine multiple expressions:
+对于 `if` 语句，在 `for` 过滤或 `if` 表达式中，它可以用于联合多个表达式:
 
 and
-    Return true if the left and the right operand is true.
+    如果左操作数和右操作数同为真，返回 true 。
 
 or
-    Return true if the left or the right operand is true.
+    如果左操作数和右操作数有一个为真，返回 true 。
 
 not
-    negate a statement (see below).
+    对一个表达式取反（见下）。
 
 (expr)
-    group an expression.
+    表达式组。
 
-.. admonition:: Note
+.. admonition:: 提示
 
-    The ``is`` and ``in`` operators support negation using an infix notation
-    too: ``foo is not bar`` and ``foo not in bar`` instead of ``not foo is bar``
-    and ``not foo in bar``.  All other expressions require a prefix notation:
-    ``not (foo and bar).``
+    ``is`` 和 ``in`` 运算符同样支持使用中缀记法: ``foo is not bar`` 和
+    ``foo not in bar`` 而不是 ``not foo is bar`` 和 ``not foo in bar`` 。所有的
+    其它表达式需要前缀记法 ``not (foo and bar)`` 。
 
-
-Other Operators
+其它运算符
 ~~~~~~~~~~~~~~~
 
-The following operators are very useful but don't fit into any of the other
-two categories:
+下面的运算符非常有用，但不适用于其它的两个分类:
 
 in
-    Perform sequence / mapping containment test.  Returns true if the left
-    operand is contained in the right.  ``{{ 1 in [1, 2, 3] }}`` would for
-    example return true.
+    运行序列/映射包含检查。如果左操作数包含于右操作数，返回 true 。比如
+    ``{{ 1 in [1,2,3] }}`` 会返回 true 。
 
 is
-    Performs a :ref:`test <tests>`.
+    运行一个 :ref:`测试 <tests>` 。
 
 \|
-    Applies a :ref:`filter <filters>`.
+    应用一个 :ref:`过滤器 <filters>` 。
 
 ~
-    Converts all operands into strings and concatenates them.
-    ``{{ "Hello " ~ name ~ "!" }}`` would return (assuming `name` is
-    ``'John'``) ``Hello John!``.
+    把所有的操作数转换为字符串，并且连接它们。
+    ``{{ "Hello " ~ name ~ "!" }}`` 会返回（假设 `name` 值为
+    ``''John'`` ） ``Hello John!`` 。
 
 ()
-    Call a callable: ``{{ post.render() }}``.  Inside of the parentheses you
-    can use positional arguments and keyword arguments like in python:
-    ``{{ post.render(user, full=true) }}``.
+    调用一个可调用量:``{{ post.render() }}`` 。在圆括号中，你可以像在 python
+    中一样使用位置参数和关键字参数:
+    ``{{ post.render(user, full=true) }}`` 。
 
 . / []
-    Get an attribute of an object.  (See :ref:`variables`)
+    获取一个对象的属性。（见 :ref:`variables` ）
 
 
 .. _if-expression:
 
-If Expression
+If 表达式
 ~~~~~~~~~~~~~
 
-It is also possible to use inline `if` expressions.  These are useful in some
-situations.  For example you can use this to extend from one template if a
-variable is defined, otherwise from the default layout template::
+同样，也可以使用内联的 `if` 表达式。这在某些情况很有用。例如你可以用来在一个
+变量定义的情况下才继承一个模板，否则继承默认的布局模板::
 
     {% extends layout_template if layout_template is defined else 'master.html' %}
 
-The general syntax is ``<do something> if <something is true> else <do
-something else>``.
+一般的语法是 ``<do something> if <something is true> else <do something
+else>`` 。
 
-The `else` part is optional.  If not provided the else block implicitly
-evaluates into an undefined object::
+`else` 部分是可选的。如果没有显式地提供 else 块，会求值一个未定义对象::
 
     {{ '[%s]' % page.title if page.title }}
 
 
 .. _builtin-filters:
 
-List of Builtin Filters
+内置过滤器清单
 -----------------------
 
 .. jinjafilters::
@@ -1005,29 +984,27 @@ List of Builtin Filters
 
 .. _builtin-tests:
 
-List of Builtin Tests
+内置测试清单
 ---------------------
 
 .. jinjatests::
 
 .. _builtin-globals:
 
-List of Global Functions
+全局函数清单
 ------------------------
 
-The following functions are available in the global scope by default:
+默认下，下面的函数在全局作用域中可用:
 
 .. function:: range([start,] stop[, step])
 
-    Return a list containing an arithmetic progression of integers.
-    range(i, j) returns [i, i+1, i+2, ..., j-1]; start (!) defaults to 0.
-    When step is given, it specifies the increment (or decrement).
-    For example, range(4) returns [0, 1, 2, 3].  The end point is omitted!
-    These are exactly the valid indices for a list of 4 elements.
+    返回一个包含整等差级数的列表。 range(i, j) 返回 [i, i+1, i+2, ....,
+    j-1] ；起始值（！）默认为 0 。当给定了公差，它决定了增长（或减小）。
+    例如 range(4) 返回 [0, 1, 2, 3] 。末端的值被丢弃了。这些是一个 4 元素
+    数组的有效索引值。
 
-    This is useful to repeat a template block multiple times for example
-    to fill a list.  Imagine you have 7 users in the list but you want to
-    render three empty items to enforce a height with CSS::
+    例如重复一个模板块多次来填充一个列表是有用的。想向你有一个 7 个用户的
+    列表，但你想要渲染三个空项目来用 CSS 强制指定高度::
 
         <ul>
         {% for user in users %}
@@ -1040,27 +1017,23 @@ The following functions are available in the global scope by default:
 
 .. function:: lipsum(n=5, html=True, min=20, max=100)
 
-    Generates some lorem ipsum for the template.  Per default five paragraphs
-    with HTML are generated each paragraph between 20 and 100 words.  If html
-    is disabled regular text is returned.  This is useful to generate simple
-    contents for layout testing.
+    在模板中生成 lorem ipsum 乱数假文。默认会生成 5 段 HTML ，每段在 20 到 100
+    词之间。如果 HTML 被禁用，会返回常规文本。这在测试布局时生成简单内容时很有
+    用。
 
 .. function:: dict(\**items)
 
-    A convenient alternative to dict literals.  ``{'foo': 'bar'}`` is the same
-    as ``dict(foo='bar')``.
-
+    方便的字典字面量替代品。 ``{'foo' : 'bar'}`` 与 ``dict(foo=bar)`` 等价。
+ 
 .. class:: cycler(\*items)
 
-    The cycler allows you to cycle among values similar to how `loop.cycle`
-    works.  Unlike `loop.cycle` however you can use this cycler outside of
-    loops or over multiple loops.
+    周期计允许你在若干个值中循环，类似 `loop.cycle` 的工作方式。不同于
+    `loop.cycle` 的是，无论如何你都可以在循环外或在多重循环中使用它。
 
-    This is for example very useful if you want to show a list of folders and
-    files, with the folders on top, but both in the same list with alternating
-    row colors.
+    比如如果你想要显示一个文件夹和文件列表，且文件夹在上，它们在同一个列表中且
+    行颜色是交替的。
 
-    The following example shows how `cycler` can be used::
+    下面的例子展示了如何使用周期计::
 
         {% set row_class = cycler('odd', 'even') %}
         <ul class="browser">
@@ -1072,28 +1045,26 @@ The following functions are available in the global scope by default:
         {% endfor %}
         </ul>
 
-    A cycler has the following attributes and methods:
+        周期计有下面的属性和方法:
 
     .. method:: reset()
 
-        Resets the cycle to the first item.
+        重置周期计到第一个项。
 
     .. method:: next()
 
-        Goes one item a head and returns the then current item.
+        返回当前项并跳转到下一个。
 
     .. attribute:: current
 
-        Returns the current item.
+        返回当前项。.
 
-    **new in Jinja 2.1**
+.. versionadded:: 2.1
 
 .. class:: joiner(sep=', ')
 
-    A tiny helper that can be use to "join" multiple sections.  A joiner is
-    passed a string and will return that string every time it's called, except
-    the first time in which situation it returns an empty string.  You can
-    use this to join things::
+    一个小巧的辅助函数用于“连接”多个节。连接器接受一个字符串，每次被调用时返回
+    那个字符串，除了第一次调用时返回一个空字符串。你可以使用它来连接::
 
         {% set pipe = joiner("|") %}
         {% if categories %} {{ pipe() }}
@@ -1106,44 +1077,40 @@ The following functions are available in the global scope by default:
             <a href="?action=edit">Edit</a>
         {% endif %}
 
-    **new in Jinja 2.1**
+.. versionadded:: 2.1
 
 
-Extensions
+扩展
 ----------
 
-The following sections cover the built-in Jinja2 extensions that may be
-enabled by the application.  The application could also provide further
-extensions not covered by this documentation.  In that case there should
-be a separate document explaining the extensions.
+下面的几节涵盖了可能被应用启用的 Jinja2 内置的扩展。应用也可以提供进一步
+的扩展，但这不会在此描述。会有独立的文档来解释那种情况下的扩展。
 
 .. _i18n-in-templates:
 
 i18n
 ~~~~
 
-If the i18n extension is enabled it's possible to mark parts in the template
-as translatable.  To mark a section as translatable you can use `trans`::
+如果启用来 i18n 扩展，可以把模板中的部分标记为可译的。标记一个段为可译的，可
+以使用 `trans`::
 
     <p>{% trans %}Hello {{ user }}!{% endtrans %}</p>
 
-To translate a template expression --- say, using template filters or just
-accessing an attribute of an object --- you need to bind the expression to a
-name for use within the translation block::
+要翻译一个模板表达式——比如使用模板过滤器或访问对象的属性——你需要绑定表达式到
+一个名称来在翻译块中使用::
 
     <p>{% trans user=user.username %}Hello {{ user }}!{% endtrans %}</p>
 
-If you need to bind more than one expression inside a `trans` tag, separate
-the pieces with a comma (``,``)::
+如果你需要在 `trans` 标签中绑定一个以上的表达式，用逗号来分割（ ``,`` ）::
 
     {% trans book_title=book.title, author=author.name %}
     This is {{ book_title }} by {{ author }}
     {% endtrans %}
 
-Inside trans tags no statements are allowed, only variable tags are.
+在翻译块中不允许使用语句，只能使用变量标签。
 
-To pluralize, specify both the singular and plural forms with the `pluralize`
-tag, which appears between `trans` and `endtrans`::
+为表示复数，在 `trans` 和 `endtrans` 之间用 `pluralize` 标签同时指定单数和复
+数形式::
 
     {% trans count=list|length %}
     There is {{ count }} {{ name }} object.
@@ -1151,35 +1118,33 @@ tag, which appears between `trans` and `endtrans`::
     There are {{ count }} {{ name }} objects.
     {% endtrans %}
 
-Per default the first variable in a block is used to determine the correct
-singular or plural form.  If that doesn't work out you can specify the name
-which should be used for pluralizing by adding it as parameter to `pluralize`::
+默认情况下块中的第一个变量用于决定使用单数还是复数。如果这不奏效，你可以指定
+用于复数的名称作为 `pluralize` 的参数::
 
     {% trans ..., user_count=users|length %}...
     {% pluralize user_count %}...{% endtrans %}
 
-It's also possible to translate strings in expressions.  For that purpose
-three functions exist:
+也可以翻译表达式中的字符串。为此，有三个函数:
 
-_   `gettext`: translate a single string
--   `ngettext`: translate a pluralizable string
--   `_`: alias for `gettext`
+_   `gettext`: 翻译一个单数字符串
+-   `ngettext`: 翻译一个复数字符串
+-   `_`: `gettext` 的别名
 
-For example you can print a translated string easily this way::
+例如你可以容易地这样打印一个已翻译的字符串::
 
     {{ _('Hello World!') }}
 
-To use placeholders you can use the `format` filter::
+你可以使用 `format` 过滤器来使用占位符::
 
     {{ _('Hello %(user)s!')|format(user=user.username) }}
 
-For multiple placeholders always use keyword arguments to `format` as other
-languages may not use the words in the same order.
+因为其它语言可能不会用同样的顺序使用词汇，要使用多个占位符，应始终用字符
+串参数传给 `format` 。
 
 .. versionchanged:: 2.5
 
-If newstyle gettext calls are activated (:ref:`newstyle-gettext`), using
-placeholders is a lot easier:
+如果激活了新样式的 gettext 调用（ :ref:`newstyle-gettext` ），使用占位符
+会更加简单:
 
 .. sourcecode:: html+jinja
 
@@ -1187,53 +1152,48 @@ placeholders is a lot easier:
     {{ gettext('Hello %(name)s!', name='World') }}
     {{ ngettext('%(num)d apple', '%(num)d apples', apples|count) }}
 
-Note that the `ngettext` function's format string automatically receives
-the count as `num` parameter additionally to the regular parameters.
+注意 `ngettext` 函数的格式化字符串自动接受 `num` 参数作为计数作为附加的
+常规参数。
 
-
-Expression Statement
+表达式语句
 ~~~~~~~~~~~~~~~~~~~~
 
-If the expression-statement extension is loaded a tag called `do` is available
-that works exactly like the regular variable expression (``{{ ... }}``) just
-that it doesn't print anything.  This can be used to modify lists::
+如果加载了表达式语句扩展，一个名为 `do` 的扩展即可用。它工作几乎如同常规的变量
+表达式（ ``{{ ... }}`` ），只是它不打印任何东西。这可以用于修改列表::
 
     {% do navigation.append('a string') %}
 
 
-Loop Controls
+循环控制
 ~~~~~~~~~~~~~
 
-If the application enables the :ref:`loopcontrols-extension` it's possible to
-use `break` and `continue` in loops.  When `break` is reached, the loop is
-terminated;  if `continue` is reached, the processing is stopped and continues
-with the next iteration.
+如果应用启用来 :ref:`loopcontrols-extension` ，则可以在循环中使用 `break` 和
+`continue` 。到达 `break` 时，循环终止。到达 `continue` 时，当前处理会终止并
+从下一次迭代继续。
 
-Here a loop that skips every second item::
+这个循环每两项跳过一次::
 
     {% for user in users %}
         {%- if loop.index is even %}{% continue %}{% endif %}
         ...
     {% endfor %}
 
-Likewise a look that stops processing after the 10th iteration::
+同样，这个循环 10 次迭代之后会终止处理::
 
     {% for user in users %}
         {%- if loop.index >= 10 %}{% break %}{% endif %}
     {%- endfor %}
 
 
-With Statement
+With 语句
 ~~~~~~~~~~~~~~
 
 .. versionadded:: 2.3
 
-If the application enables the :ref:`with-extension` it is possible to
-use the `with` keyword in templates.  This makes it possible to create
-a new inner scope.  Variables set within this scope are not visible
-outside of the scope.
+如果应用启用了 :ref:`with-extension` ，将允许在模板中使用 `with` 关键
+字。这使得创建一个新的内作用域。这个作用域中的变量在外部是不可见的。
 
-With in a nutshell::
+with 在 nutshell 中::
 
     {% with %}
         {% set foo = 42 %}
@@ -1241,9 +1201,8 @@ With in a nutshell::
     {% endwith %}
     foo is not visible here any longer
 
-Because it is common to set variables at the beginning of the scope
-you can do that within the with statement.  The following two examples
-are equivalent::
+因为在作用域的开始设置变量很常见，你可以在 with 语句里这么做。下面的两
+个例子是等价的::
 
     {% with foo = 42 %}
         {{ foo }}
