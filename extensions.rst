@@ -1,133 +1,120 @@
 .. _jinja-extensions:
 
-Extensions
+扩展
 ==========
 
-Jinja2 supports extensions that can add extra filters, tests, globals or even
-extend the parser.  The main motivation of extensions is it to move often used
-code into a reusable class like adding support for internationalization.
+Jinja2 支持扩展来添加过滤器、测试、全局变量或者甚至是处理器。扩展的主要动力是
+把诸如添加国际化支持的常用代码迁移到一个可重用的类。
 
 
-Adding Extensions
+添加扩展
 -----------------
 
-Extensions are added to the Jinja2 environment at creation time.  Once the
-environment is created additional extensions cannot be added.  To add an
-extension pass a list of extension classes or import paths to the
-`environment` parameter of the :class:`Environment` constructor.  The following
-example creates a Jinja2 environment with the i18n extension loaded::
+扩展在 Jinja2 环境创建时被添加。一旦环境被创建，就不能添加额外的扩展。要添加
+一个扩展，传递一个扩展类或导入路径的列表到 :class:`Environment` 构造函数的
+`environment` 参数。下面的例子创建了一个加载了 i18n 扩展的 Jinja2 环境::
 
     jinja_env = Environment(extensions=['jinja2.ext.i18n'])
 
 
 .. _i18n-extension:
 
-i18n Extension
+i18n 扩展
 --------------
 
 **Import name:** `jinja2.ext.i18n`
 
-Jinja2 currently comes with one extension, the i18n extension.  It can be
-used in combination with `gettext`_ or `babel`_.  If the i18n extension is
-enabled Jinja2 provides a `trans` statement that marks the wrapped string as
-translatable and calls `gettext`.
+Jinja2 当前只附带一个扩展，就是 i18n 扩展。它可以与 `gettext`_ 或 `babel`_
+联合使用。如果启用了 i18n 扩展， Jinja2 提供了 `trans` 语句来标记被其包裹的
+字符串为可翻译的，并调用 `gettext` 。
 
-After enabling dummy `_` function that forwards calls to `gettext` is added
-to the environment globals.  An internationalized application then has to
-provide at least an `gettext` and optionally a `ngettext` function into the
-namespace.  Either globally or for each rendering.
+在启用虚拟的 `_` 函数后，之后的 `gettext` 调用会被添加到环境的全局变量。那么
+一个国际化的应用应该不仅在全局，以及在每次渲染中在命名空间中提供至少一个
+`gettext`  或可选的 `ngettext` 函数。
 
-Environment Methods
+环境方法
 ~~~~~~~~~~~~~~~~~~~
 
-After enabling of the extension the environment provides the following
-additional methods:
+在启用这个扩展后，环境提供下面的额外方法:
 
 .. method:: jinja2.Environment.install_gettext_translations(translations, newstyle=False)
 
-    Installs a translation globally for that environment.  The tranlations
-    object provided must implement at least `ugettext` and `ungettext`.
-    The `gettext.NullTranslations` and `gettext.GNUTranslations` classes
-    as well as `Babel`_\s `Translations` class are supported.
+    在该环境中全局安装翻译。提供的翻译对象要至少实现 `uggettext` 和
+    `ungettext` 。 `gettext.NullTranslations` 和 `gettext.GNUTranslations`
+    类和 `Babel`_'s 的 `Translations` 类也被支持。
 
-    .. versionchanged:: 2.5 newstyle gettext added
+    .. versionchanged:: 2.5 添加了新样式的 gettext
 
 .. method:: jinja2.Environment.install_null_translations(newstyle=False)
 
-    Install dummy gettext functions.  This is useful if you want to prepare
-    the application for internationalization but don't want to implement the
-    full internationalization system yet.
+    安装虚拟的 gettext 函数。这在你想使应用为国际化做准备但还不想实现完整的
+    国际化系统时很有用。
 
-    .. versionchanged:: 2.5 newstyle gettext added
+    .. versionchanged:: 2.5 添加了新样式的 gettext
 
 .. method:: jinja2.Environment.install_gettext_callables(gettext, ngettext, newstyle=False)
 
-    Installs the given `gettext` and `ngettext` callables into the
-    environment as globals.  They are supposed to behave exactly like the
-    standard library's :func:`gettext.ugettext` and
-    :func:`gettext.ungettext` functions.
+    在环境中把给出的 `gettext` 和 `ngettext` 可调用量安装为全局变量。它们
+    应该表现得几乎与标准库中的 :func:`gettext.ugettext` 和
+    :func:`gettext.ungettext` 函数相同。
 
-    If `newstyle` is activated, the callables are wrapped to work like
-    newstyle callables.  See :ref:`newstyle-gettext` for more information.
+    如果激活了 `新样式` ，可调用量被包装为新样式的可调用量一样工作。更多
+    信息见 :ref:`newstyle-gettext` 。
 
     .. versionadded:: 2.5
 
 .. method:: jinja2.Environment.uninstall_gettext_translations()
 
-    Uninstall the translations again.
+    再次卸载翻译。
 
 .. method:: jinja2.Environment.extract_translations(source)
 
-    Extract localizable strings from the given template node or source.
+    从给定的模板或源中提取本地化字符串。
 
-    For every string found this function yields a ``(lineno, function,
-    message)`` tuple, where:
+    对找到的每一个字符串，这个函数生产一个 ``(lineno, function, message
+    )`` 元组，在这里:
 
-    * `lineno` is the number of the line on which the string was found,
-    * `function` is the name of the `gettext` function used (if the
-      string was extracted from embedded Python code), and
-    *  `message` is the string itself (a `unicode` object, or a tuple
-       of `unicode` objects for functions with multiple string arguments).
+    * `lineno` 是这个字符串所在行的行号。
+    * `function` 是 `gettext` 函数使用的名称（如果字符串是从内嵌的 Python
+      代码中抽取的）。
+    * `message` 是字符串本身（一个 `unicode` 对象，在函数有多个字符串参数
+      时是一个 `unicode` 对象的元组）。
 
-    If `Babel`_ is installed :ref:`the babel integration <babel-integration>`
-    can be used to extract strings for babel.
+    如果安装了 `Babel`_ ， :ref:`Babel 集成 <babel-integration>` 可以用来为
+    babel 抽取字符串。
 
-For a web application that is available in multiple languages but gives all
-the users the same language (for example a multilingual forum software
-installed for a French community) may load the translations once and add the
-translation methods to the environment at environment generation time::
+对于一个对多种语言可用而对所有用户给出同一种的语言的 web 应用（例如一个法国社
+区安全了一个多种语言的论坛软件）可能会一次性加载翻译并且在环境生成时把翻译方
+法添加到环境上::
 
     translations = get_gettext_translations()
     env = Environment(extensions=['jinja2.ext.i18n'])
     env.install_gettext_translations(translations)
 
-The `get_gettext_translations` function would return the translator for the
-current configuration.  (For example by using `gettext.find`)
+`get_get_translations` 函数会返回当前配置的翻译器。（比如使用 `gettext.find`
+）
 
-The usage of the `i18n` extension for template designers is covered as part
-:ref:`of the template documentation <i18n-in-templates>`.
+模板设计者的 `i18n` 扩展使用在 :ref:`模板文档 <i18n-in-templates>` 中有描述。
 
 .. _gettext: http://docs.python.org/dev/library/gettext
 .. _Babel: http://babel.edgewall.org/
 
 .. _newstyle-gettext:
 
-Newstyle Gettext
+新样式 Gettext
 ~~~~~~~~~~~~~~~~
 
 .. versionadded:: 2.5
 
-Starting with version 2.5 you can use newstyle gettext calls.  These are
-inspired by trac's internal gettext functions and are fully supported by
-the babel extraction tool.  They might not work as expected by other
-extraction tools in case you are not using Babel's.
+从版本 2.5 开始你可以使用新样式的 gettext 调用。这些的启发源于 trac 的内部
+gettext 函数并且完全被 babel 抽取工具支持。如果你不使用 Babel 的抽取工具，
+它可能不会像其它抽取工具预期的那样工作。
 
-What's the big difference between standard and newstyle gettext calls?  In
-general they are less to type and less error prone.  Also if they are used
-in an autoescaping environment they better support automatic escaping.
-Here some common differences between old and new calls:
+标准 gettext 调用和新样式的 gettext 调用有什么区别？通常，它们要输入的东西
+更少，出错率更低。并且如果在自动转义环境中使用它们，它们也能更好地支持自动
+转义。这里是一些新老样式调用的差异:
 
-standard gettext:
+标准 gettext:
 
 .. sourcecode:: html+jinja
 
@@ -137,7 +124,7 @@ standard gettext:
         num=apples|count
     )}}
 
-newstyle gettext looks like this instead:
+新样式看起来是这样:    
 
 .. sourcecode:: html+jinja
 
@@ -145,96 +132,84 @@ newstyle gettext looks like this instead:
     {{ gettext('Hello %(name)s!', name='World') }}
     {{ ngettext('%(num)d apple', '%(num)d apples', apples|count) }}
 
-The advantages of newstyle gettext is that you have less to type and that
-named placeholders become mandatory.  The latter sounds like a
-disadvantage but solves a lot of troubles translators are often facing
-when they are unable to switch the positions of two placeholder.  With
-newstyle gettext, all format strings look the same.
+新样式 gettext 的优势是你需要输入的更少，并且命名占位符是强制的。后者看起
+来似乎是缺陷，但解决了当翻译者不能切换两个占位符的位置时经常勉励的一大堆
+麻烦。使用新样式的 gettext ，所有的格式化字符串看起来都一样。
 
-Furthermore with newstyle gettext, string formatting is also used if no
-placeholders are used which makes all strings behave exactly the same.
-Last but not least are newstyle gettext calls able to properly mark
-strings for autoescaping which solves lots of escaping related issues many
-templates are experiencing over time when using autoescaping.
+除此之外，在新样式 gettext 中，如果没有使用占位符，字符串格式化也会被使用，
+这使得所有的字符串表现一致。最后，不仅是新样式的 gettext 调用可以妥善地为
+解决了许多转义相关问题的自动转义标记字符串，许多模板也在使用自动转义时体验
+了多次。
 
-Expression Statement
+表达式语句
 --------------------
 
 **Import name:** `jinja2.ext.do`
 
-The "do" aka expression-statement extension adds a simple `do` tag to the
-template engine that works like a variable expression but ignores the
-return value.
+“do”又叫做表达式语句扩展，向模板引擎添加了一个简单的 `do` 标签，其工作如同
+一个变量表达式，只是忽略返回值。
 
 .. _loopcontrols-extension:
 
-Loop Controls
+循环控制
 -------------
 
 **Import name:** `jinja2.ext.loopcontrols`
 
-This extension adds support for `break` and `continue` in loops.  After
-enabling Jinja2 provides those two keywords which work exactly like in
-Python.
+这个扩展添加了循环中的 `break` 和 `continue` 支持。在启用它之后， Jinja2
+提供的这两个关键字如同 Python 中那样工作。
 
 .. _with-extension:
 
-With Statement
+With 语句
 --------------
 
 **Import name:** `jinja2.ext.with_`
 
 .. versionadded:: 2.3
 
-This extension adds support for the with keyword.  Using this keyword it
-is possible to enforce a nested scope in a template.  Variables can be
-declared directly in the opening block of the with statement or using a
-standard `set` statement directly within.
+这个扩展添加了 with 关键字支持。使用这个关键字可以在模板中强制一块嵌套的
+作用域。变量可以在 with 语句的块头中直接声明，或直接在里面使用标准的 `set`
+语句。
 
 .. _autoescape-extension:
 
-Autoescape Extension
+自动转义扩展
 --------------------
 
 **Import name:** `jinja2.ext.autoescape`
 
 .. versionadded:: 2.4
 
-The autoescape extension allows you to toggle the autoescape feature from
-within the template.  If the environment's :attr:`~Environment.autoescape`
-setting is set to `False` it can be activated, if it's `True` it can be
-deactivated.  The setting overriding is scoped.
-
+自动转义扩展允许你在模板内开关自动转义特性。如果环境的
+:attr:`~Environment.autoescape` 设定为 `False` ，它可以被激活。如果是 `True`
+可以被关闭。这个设定的覆盖是有作用域的。
 
 .. _writing-extensions:
 
-Writing Extensions
+编写扩展
 ------------------
 
 .. module:: jinja2.ext
 
-By writing extensions you can add custom tags to Jinja2.  This is a non trival
-task and usually not needed as the default tags and expressions cover all
-common use cases.  The i18n extension is a good example of why extensions are
-useful, another one would be fragment caching.
+你可以编写扩展来向 Jinja2 中添加自定义标签。这是一个不平凡的任务，而且通常不需
+要，因为默认的标签和表达式涵盖了所有常用情况。如 i18n 扩展是一个扩展有用的好例
+子，而另一个会是碎片缓存。
 
-When writing extensions you have to keep in mind that you are working with the
-Jinja2 template compiler which does not validate the node tree you are passing
-to it.  If the AST is malformed you will get all kinds of compiler or runtime
-errors that are horrible to debug.  Always make sure you are using the nodes
-you create correctly.  The API documentation below shows which nodes exist and
-how to use them.
+当你编写扩展时，你需要记住你在与 Jinja2 模板编译器一同工作，而它并不验证你传递
+到它的节点树。如果 AST 是畸形的，你会得到各种各样的编译器或运行时错误，这调试起
+来极其可怕。始终确保你在使用创建正确的节点。下面的 API 文档展示了有什么节点和如
+何使用它们。
 
-Example Extension
+示例扩展
 ~~~~~~~~~~~~~~~~~
 
-The following example implements a `cache` tag for Jinja2 by using the
-`Werkzeug`_ caching contrib module:
+下面的例子用 `Werkzeug`_ 的缓存 contrib 模块为 Jinja2 实现了一个 `cache` 标签:
 
 .. literalinclude:: cache_extension.py
     :language: python
 
-And here is how you use it in an environment::
+而这是你在环境中使用它的方式::
 
     from jinja2 import Environment
     from werkzeug.contrib.cache import SimpleCache
@@ -242,8 +217,7 @@ And here is how you use it in an environment::
     env = Environment(extensions=[FragmentCacheExtension])
     env.fragment_cache = SimpleCache()
 
-Inside the template it's then possible to mark blocks as cacheable.  The
-following example caches a sidebar for 300 seconds:
+之后，在模板中可以标记块为可缓存的。下面的例子缓存一个边栏 300 秒:
 
 .. sourcecode:: html+jinja
 
@@ -255,30 +229,27 @@ following example caches a sidebar for 300 seconds:
 
 .. _Werkzeug: http://werkzeug.pocoo.org/
 
-Extension API
+扩展 API
 ~~~~~~~~~~~~~
 
-Extensions always have to extend the :class:`jinja2.ext.Extension` class:
+扩展总是继承 :class:`jinja2.ext.Extension` 类:
 
 .. autoclass:: Extension
     :members: preprocess, filter_stream, parse, attr, call_method
 
     .. attribute:: identifier
 
-        The identifier of the extension.  This is always the true import name
-        of the extension class and must not be changed.
+        扩展的标识符。这始终是扩展类的真实导入名，不能被修改。
 
     .. attribute:: tags
 
-        If the extension implements custom tags this is a set of tag names
-        the extension is listening for.
+        如果扩展实现自定义标签，这是扩展监听的标签名的集合。
 
-Parser API
-~~~~~~~~~~
+解析器 API
+~~~~~~~~~~~~~~
 
-The parser passed to :meth:`Extension.parse` provides ways to parse
-expressions of different types.  The following methods may be used by
-extensions:
+传递到 :meth:`Extension.parse` 的解析器提供解析不同类型表达式的方式。下
+面的方法可能会在扩展中使用:
 
 .. autoclass:: jinja2.parser.Parser
     :members: parse_expression, parse_tuple, parse_assign_target,
@@ -286,59 +257,55 @@ extensions:
 
     .. attribute:: filename
 
-        The filename of the template the parser processes.  This is **not**
-        the load name of the template.  For the load name see :attr:`name`.
-        For templates that were not loaded form the file system this is
-        `None`.
+        解析器处理的模板文件名。这 **不是** 模板的加载名。加载名见
+        :attr:`name` 。对于不是从文件系统中加载的模板，这个值为 `None` 。
 
     .. attribute:: name
 
-        The load name of the template.
+        模板的加载名。
 
     .. attribute:: stream
 
-        The current :class:`~jinja2.lexer.TokenStream`
+        当前的 :class:`~jinja2.lexer.TokenStream` 。
 
 .. autoclass:: jinja2.lexer.TokenStream
    :members: push, look, eos, skip, next, next_if, skip_if, expect
 
    .. attribute:: current
 
-        The current :class:`~jinja2.lexer.Token`.
+        当前的 :class:`~jinja2.lexer.Token` 。
 
 .. autoclass:: jinja2.lexer.Token
     :members: test, test_any
 
     .. attribute:: lineno
 
-        The line number of the token
+        token 的行号。
 
     .. attribute:: type
 
-        The type of the token.  This string is interned so you may compare
-        it with arbitrary strings using the `is` operator.
+        token 的类型。这个值是被禁锢的，所以你可以用 `is` 运算符同任意字符
+        串比较。
 
     .. attribute:: value
 
-        The value of the token.
+        token 的值。
 
-There is also a utility function in the lexer module that can count newline
-characters in strings:
+同样，在词法分析模块中也有一个实用函数可以计算字符串中的换行符数目::
 
 .. autofunction:: jinja2.lexer.count_newlines
 
 AST
 ~~~
 
-The AST (Abstract Syntax Tree) is used to represent a template after parsing.
-It's build of nodes that the compiler then converts into executable Python
-code objects.  Extensions that provide custom statements can return nodes to
-execute custom Python code.
+AST（抽象语法树: Abstract Syntax Tree）用于表示解析后的模板。它有编译器之后
+转换到可执行的 Python 代码对象的节点构建。提供自定义语句的扩展可以返回执行自
+定义 Python 代码的节点。
 
-The list below describes all nodes that are currently available.  The AST may
-change between Jinja2 versions but will stay backwards compatible.
+下面的清单展示了所有当前可用的节点。 AST 在 Jinja2 的各个版本中有差异，但会向
+后兼容。
 
-For more information have a look at the repr of :meth:`jinja2.Environment.parse`.
+更多信息请见 :meth:`jinja2.Environment.parse` 。
 
 .. module:: jinja2.nodes
 
