@@ -1193,7 +1193,7 @@ With 语句
 如果应用启用了 :ref:`with-extension` ，将允许在模板中使用 `with` 关键
 字。这使得创建一个新的内作用域。这个作用域中的变量在外部是不可见的。
 
-with 在 nutshell 中::
+With 用法简介::
 
     {% with %}
         {% set foo = 42 %}
