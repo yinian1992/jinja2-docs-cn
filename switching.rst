@@ -1,125 +1,105 @@
-Switching from other Template Engines
+从其它的模板引擎切换
 =====================================
 
 .. highlight:: html+jinja
 
-If you have used a different template engine in the past and want to swtich
-to Jinja2 here is a small guide that shows the basic syntatic and semantic
-changes between some common, similar text template engines for Python.
+如果你过去使用一个不同的模板引擎，并且想要转换到 Jinja2 ，这里是一份简小的
+指导展示了一些常见的、相似的 Python 文本模板引擎基本语法和语义差异。
 
 Jinja1
 ------
 
-Jinja2 is mostly compatible with Jinja1 in terms of API usage and template
-syntax.  The differences between Jinja1 and 2 are explained in the following
-list.
+Jinja2 与 Jinja1 在 API 使用和模板语法上最为兼容。下面的列表解释了 Jinja1 和
+Jinja2 的区别。
 
 API
 ~~~
 
-Loaders
-    Jinja2 uses a different loader API.  Because the internal representation
-    of templates changed there is no longer support for external caching
-    systems such as memcached.  The memory consumed by templates is comparable
-    with regular Python modules now and external caching doesn't give any
-    advantage.  If you have used a custom loader in the past have a look at
-    the new :ref:`loader API <loaders>`.
+加载器
+    Jinja2 使用不同的加载器 API 。因为模板的内部表示更改，不再支持 memcached
+    这样的外部缓存系统。模板的内存开销与常规的 Python 模块相当，外部缓存不能
+    带来优势。如果你以前使用了一个自定义的加载器，请阅读
+    :ref:`loader API <loaders>` 部分。
 
-Loading templates from strings
-    In the past it was possible to generate templates from a string with the
-    default environment configuration by using `jinja.from_string`.  Jinja2
-    provides a :class:`Template` class that can be used to do the same, but
-    with optional additional configuration.
+从字符串加载模板
+    在过去，在默认环境配置中使用 `jinja.from_string` 从字符串生成模板是可能
+    的。 Jinja2 提供了一个 :class:`Template` 类来用于做同样的事情，但是需要
+    可选的额外配置。
 
-Automatic unicode conversion
-    Jinja1 performed automatic conversion of bytestrings in a given encoding
-    into unicode objects.  This conversion is no longer implemented as it
-    was inconsistent as most libraries are using the regular Python ASCII
-    bytestring to Unicode conversion.  An application powered by Jinja2
-    *has to* use unicode internally everywhere or make sure that Jinja2 only
-    gets unicode strings passed.
+自动 Unicode 转换
+    Jinja1 执行把字节串从一个给定编码到 unicode 对象的自动转换。这个转换不再
+    被实现，因为它与大多数使用常规 Python ASCII 字节串到 Unicode 转换的库不
+    一致。一个由 Jinja2 驱动的应用 *必须* 在内部的每个地方都使用 unicode 或
+    确保 Jinja2 只会被传递 unicode 字符串。
 
 i18n
-    Jinja1 used custom translators for internationalization.  i18n is now
-    available as Jinja2 extension and uses a simpler, more gettext friendly
-    interface and has support for babel.  For more details see
-    :ref:`i18n-extension`.
+    Jinja1 使用自定义的国际化翻译器。 i18n 现在作为 Jinja2 的一个扩展，并且
+    使用更简单、更 gettext 友好的接口，并且支持 babel 。更多细节见
+    :ref:`i18n-extension` 。
 
-Internal methods
-    Jinja1 exposed a few internal methods on the environment object such
-    as `call_function`, `get_attribute` and others.  While they were marked
-    as being an internal method it was possible to override them.  Jinja2
-    doesn't have equivalent methods.
+内部方法
+    Jinja1 在环境对象上暴露了诸如 `call_function` 、 `get_attribute` 等内部
+    方法。当它们被标记为一个内部方法，则可以覆盖它们。 Jinja2 并没有等价的
+    方法。
 
-Sandbox
-    Jinja1 was running sandbox mode by default.  Few applications actually
-    used that feature so it became optional in Jinja2.  For more details
-    about the sandboxed execution see :class:`SandboxedEnvironment`.
+沙箱
+    Jinja1 默认运行沙箱模式。实际上只有少数应用使用这一特性，所以这在
+    Jinja2 中是可选的。更多关于上下执行的细节见
+    :class:`SandboxedEnvironment` 。
 
-Context
-    Jinja1 had a stacked context as storage for variables passed to the
-    environment.  In Jinja2 a similar object exists but it doesn't allow
-    modifications nor is it a singleton.  As inheritance is dynamic now
-    multiple context objects may exist during template evaluation.
+上下文
+    Jinja1 有一个上下文栈存储传递到环境的变量。在 Jinja2 中有一个类似的
+    对象，但它不允许修改也不是单例的。由于继承是动态的，现在当模板求值时
+    可能存在多个上下文对象。
 
-Filters and Tests
-    Filters and tests are regular functions now.  It's no longer necessary
-    and allowed to use factory functions.
+过滤器和测试
+    过滤器和测试现在是常规的函数。不再允许使用工厂函数，且也没有必要。
 
-
-Templates
+模板
 ~~~~~~~~~
 
-Jinja2 has mostly the same syntax as Jinja1.  What's different is that
-macros require parentheses around the argument list now.
+Jinja2 与 Jinja1 的语法几乎相同。区别是，现在宏需要用小括号包裹参数。
 
-Additionally Jinja2 allows dynamic inheritance now and dynamic includes.
-The old helper function `rendertemplate` is gone now, `include` can be used
-instead.  Includes no longer import macros and variable assignments, for
-that the new `import` tag is used.  This concept is explained in the
-:ref:`import` documentation.
+此外， Jinja2 允许动态继承和动态包含。老的辅助函数 `rendertemplate` 作古，
+而使用 `include` 。包含不再导入宏和变量声明，因为采用了新的 `import` 标签。
+这个概念在 :ref:`import` 文档中做了解释。
 
-Another small change happened in the `for`-tag.  The special loop variable
-doesn't have a `parent` attribute, instead you have to alias the loop
-yourself.  See :ref:`accessing-the-parent-loop` for more details.
-
+另一个改变发生在 `for` 标签里。特殊的循环变量不再拥有 `parent` 属性，而
+你需要自己给循环起别名。见 :ref:`accessing-the-parent-loop` 了解更多细节。
 
 Django
 ------
 
-If you have previously worked with Django templates, you should find
-Jinja2 very familiar.  In fact, most of the syntax elements look and
-work the same.
+如果你之前使用 Django 模板，你应该会发现跟 Jinja2 非常相似。实际上，
+很多的语法元素看起来相同，工作也相同。
 
-However, Jinja2 provides some more syntax elements covered in the
-documentation and some work a bit different.
+尽管如此， Jinja2 提供了更多的在之前文档中描述的语法元素，并且某些
+工作会有一点不一样。
 
-This section covers the template changes.  As the API is fundamentally
-different we won't cover it here.
+本节介绍了模板差异。由于 API 是从根本上不同，我们不会再这里赘述。
 
-Method Calls
+方法调用
 ~~~~~~~~~~~~
 
-In Django method calls work implicitly.  With Jinja2 you have to specify that
-you want to call an object.  Thus this Django code::
+在 Django 中，方法调用是隐式的。在 Jinja2 中，你必须指定你要调用一个对象。如
+此，这段 Django 代码::
 
     {% for page in user.get_created_pages %}
         ...
     {% endfor %}
     
-will look like this in Jinja::
+在 Jinja 中应该是这样::
 
     {% for page in user.get_created_pages() %}
         ...
     {% endfor %}
 
-This allows you to pass variables to the function which is also used for macros
-which is not possible in Django.
+这允许你给函数传递变量，且宏也使用这种方式，而这在 Django 中是不可能的。
 
-Conditions
+条件
 ~~~~~~~~~~
 
-In Django you can use the following constructs to check for equality::
+在 Django 中你可以使用下面的结构来判断是否相等::
 
     {% ifequal foo "bar" %}
         ...
@@ -127,7 +107,7 @@ In Django you can use the following constructs to check for equality::
         ...
     {% endifequal %}
 
-In Jinja2 you can use the normal if statement in combination with operators::
+在 Jinja2 中你可以像通常一样使用 if 语句和操作符来做比较::
 
     {% if foo == 'bar' %}
         ...
@@ -135,7 +115,7 @@ In Jinja2 you can use the normal if statement in combination with operators::
         ...
     {% endif %}
 
-You can also have multiple elif branches in your template::
+你也可以在模板中使用多个 elif 分支::
 
     {% if something %}
         ...
@@ -147,26 +127,24 @@ You can also have multiple elif branches in your template::
         ...
     {% endif %}
 
-Filter Arguments
+过滤器参数
 ~~~~~~~~~~~~~~~~
 
-Jinja2 provides more than one argument for filters.  Also the syntax for
-argument passing is different.  A template that looks like this in Django::
+Jinja2 为过滤器提供不止一个参数。参数传递的语法也是不同的。一个这样的
+Django 模板::
 
     {{ items|join:", " }}
 
-looks like this in Jinja2::
+在 Jinja2 中是这样::
 
     {{ items|join(', ') }}
 
-In fact it's a bit more verbose but it allows different types of arguments -
-including variables - and more than one of them.
+实际上这有点冗赘，但它允许不同类型的参数——包括变量——且不仅是一种。
 
-Tests
+测试
 ~~~~~
 
-In addition to filters there also are tests you can perform using the is
-operator.  Here are some examples::
+除过滤器外，同样有用 is 操作符运行的测试。这里是一些例子::
 
     {% if user.user_id is odd %}
         {{ user.username|e }} is odd
@@ -174,33 +152,31 @@ operator.  Here are some examples::
         hmm. {{ user.username|e }} looks pretty normal
     {% endif %}
 
-Loops
+循环
 ~~~~~
 
-For loops work very similar to Django, the only incompatibility is that in
-Jinja2 the special variable for the loop context is called `loop` and not
-`forloop` like in Django.
+因为循环与 Django 中的十分相似，仅有的不兼容是 Jinja2 中循环上下文的特殊变
+量名为 `loop` 而不是 Django 中的 `forloop` 。
 
-Cycle
-~~~~~
+周期计
+~~~~~~
 
-The ``{% cycle %}`` tag does not exist in Jinja because of it's implicit
-nature.  However you can achieve mostly the same by using the `cycle`
-method on a loop object.
+Jinja 中没有 ``{% cycle %}`` 标签，因为它是隐式的性质。而你可以用循环对象
+的 `cycle` 方法实现几乎相同的东西。
 
-The following Django template::
+下面的 Django 模板::
 
     {% for user in users %}
         <li class="{% cycle 'odd' 'even' %}">{{ user }}</li>
     {% endfor %}
 
-Would look like this in Jinja::
+Jinja 中看起来是这样::
 
     {% for user in users %}
         <li class="{{ loop.cycle('odd', 'even') }}">{{ user }}</li>
     {% endfor %}
 
-There is no equivalent of ``{% cycle ... as variable %}``.
+没有与 ``{% cycle ... as variable %}`` 等价的。
 
 
 Mako
@@ -208,18 +184,16 @@ Mako
 
 .. highlight:: html+mako
 
-If you have used Mako so far and want to switch to Jinja2 you can configure
-Jinja2 to look more like Mako:
+如果你迄今使用 Mako 并且想要转换到 Jinja2 ，你可以把 Jinja2 配置成 Mako 一
+样:
 
 .. sourcecode:: python
 
     env = Environment('<%', '%>', '${', '}', '%')
 
-Once the environment is configure like that Jinja2 should be able to interpret
-a small subset of Mako templates.  Jinja2 does not support embedded Python code
-so you would have to move that out of the template.  The syntax for defs (in
-Jinja2 defs are called macros) and template inheritance is different too.  The
-following Mako template::
+环境配置成这样后， Jinja2 应该可以解释一个 Mako 模板的小型子集。 Jinja2 不支持
+嵌入 Python 代码，所以你可能需要把它们移出模板。 def 的语法（在 Jinja2 中 def
+被叫做宏）并且模板继承也是不同的。下面的 Mako 模板::
 
     <%inherit file="layout.html" />
     <%def name="title()">Page Title</%def>
@@ -229,7 +203,7 @@ following Mako template::
     % endfor
     </ul>
 
-Looks like this in Jinja2 with the above configuration::
+在以上配置的 Jinja2 中看起来是这样::
 
     <% extends "layout.html" %>
     <% block title %>Page Title<% endblock %>
