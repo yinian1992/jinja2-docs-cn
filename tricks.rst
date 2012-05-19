@@ -7,7 +7,7 @@
 
 .. _null-master-fallback:
 
-Null-Master Fallback
+Null-Master 退回
 --------------------
 
 Jinja2 支持动态继承并且只要没有 `extends` 标签被访问过，就不分辨父模板和子模
