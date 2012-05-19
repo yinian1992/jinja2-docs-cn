@@ -1,29 +1,23 @@
-Tips and Tricks
+提示和技巧
 ===============
 
 .. highlight:: html+jinja
 
-This part of the documentation shows some tips and tricks for Jinja2
-templates.
-
+这部分文档展示了一些 Jinja2 模板的提示和技巧。
 
 .. _null-master-fallback:
 
 Null-Master Fallback
 --------------------
 
-Jinja2 supports dynamic inheritance and does not distinguish between parent
-and child template as long as no `extends` tag is visited.  While this leads
-to the surprising behavior that everything before the first `extends` tag
-including whitespace is printed out instead of being igored, it can be used
-for a neat trick.
+Jinja2 支持动态继承并且只要没有 `extends` 标签被访问过，就不分辨父模板和子模
+板。而这会导致令人惊讶的行为：首个 `extends` 标签前的包括空白字符的所有东西
+会被打印出来而不是被忽略，这也可以用作一个巧妙的方法。
 
-Usually child templates extend from one template that adds a basic HTML
-skeleton.  However it's possible put the `extends` tag into an `if` tag to
-only extend from the layout template if the `standalone` variable evaluates
-to false which it does per default if it's not defined.  Additionally a very
-basic skeleton is added to the file so that if it's indeed rendered with
-`standalone` set to `True` a very basic HTML skeleton is added::
+通常，继承一个模板的子模板来添加基本的 HTML 骨架。而把 `extends` 标签放在
+`if` 标签中，当 `standalone` 变量值为 false 时（按照默认未定义也为 false ）继
+承布局模板是可行的。此外，一个非常基本的骨架会被添加到文件，这样如果确实带
+置为 `True` 的 `standalone` 渲染，一个非常基本的 HTML 骨架会被添加::
 
     {% if not standalone %}{% extends 'master.html' %}{% endif -%}
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -34,11 +28,11 @@ basic skeleton is added to the file so that if it's indeed rendered with
     {% endblock %}
 
 
-Alternating Rows
+交替的行
 ----------------
 
-If you want to have different styles for each row of a table or
-list you can use the `cycle` method on the `loop` object::
+如果你想要对一个表格或列表中的每行使用不同的样式，可以使用 `loop`
+对象的 `cycle` 方法::
 
     <ul>
     {% for row in rows %}
@@ -46,24 +40,21 @@ list you can use the `cycle` method on the `loop` object::
     {% endfor %}
     </ul>
 
-`cycle` can take an unlimited amount of strings.  Each time this
-tag is encountered the next item from the list is rendered.
+`cycle` 可接受无限数目的字符串。每次遭遇这个标签，列表中的下一项
+就会被渲染。
 
-
-Highlighting Active Menu Items
+高亮活动菜单项
 ------------------------------
 
-Often you want to have a navigation bar with an active navigation
-item.  This is really simple to achieve.  Because assignments outside
-of `block`\s in child templates are global and executed before the layout
-template is evaluated it's possible to define the active menu item in the
-child template::
+你经常想要一个带有活动导航项的导航栏。这相当容易实现。因为在 `block` 外
+的声明在子模板中是全局的，并且在布局模板求值前执行，在子模板中定义活动的
+菜单项::
 
     {% extends "layout.html" %}
     {% set active_page = "index" %}
 
-The layout template can then access `active_page`.  Additionally it makes
-sense to defined a default for that variable::
+布局模板之后就可以访问 `active_page` 。此外，这意味着你可以为它定义默认
+值::
 
     {% set navigation_bar = [
         ('/', 'index', 'Index'),
@@ -82,11 +73,11 @@ sense to defined a default for that variable::
 
 .. _accessing-the-parent-loop:
 
-Accessing the parent Loop
+访问父级循环
 -------------------------
 
-The special `loop` variable always points to the innermost loop.  If it's
-desired to have access to an outer loop it's possible to alias it::
+特殊的 `loop` 变量总是指向最里层的循环。如果想要访问外层的循环，可以给它
+设置别名::
 
     <table>
     {% for row in table %}
